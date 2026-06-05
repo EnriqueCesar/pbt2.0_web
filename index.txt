@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBT Web 2.0 | CAFE / DT</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --green:#00754a;
+  --dark:#1f1f1f;
+  --soft:#f4f4f4;
+  --ok:#dff3e7;
+  --bad:#ffe1e1;
+  --gray:#a9a9a9;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#f5f5f5;
+  color:#222;
+}
+
+.header{
+  background:var(--green);
+  color:white;
+  padding:14px 18px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.container{
+  padding:12px;
+  max-width:1500px;
+  margin:auto;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:#f5f5f5;
+  padding:8px 0;
+}
+
+.tab{
+  flex:1;
+  border:0;
+  padding:12px;
+  border-radius:10px;
+  font-weight:bold;
+  background:#ddd;
+  cursor:pointer;
+}
+
+.tab.active{
+  background:var(--green);
+  color:white;
+}
+
+.page{display:none}
+.page.active{display:block}
+
+.card{
+  background:white;
+  border:1px solid #ddd;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.card h3{
+  margin:0;
+  background:var(--green);
+  color:white;
+  padding:8px;
+  text-align:center;
+  font-size:14px;
+}
+
+.card-body{padding:10px}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.grid-3{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+
+.grid-5{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+
+label{
+  font-size:12px;
+  font-weight:bold;
+}
+
+input, select, textarea{
+  width:100%;
+  padding:7px;
+  border:1px solid #bbb;
+  border-radius:7px;
+  font-size:13px;
+}
+
+select[multiple]{
+  height:84px;
+}
+
+textarea{
+  min-height:58px;
+}
+
+.btn{
+  background:var(--green);
+  color:white;
+  border:0;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.btn.secondary{
+  background:#333;
+}
+
+.total{
+  margin-top:8px;
+  text-align:center;
+  font-weight:bold;
+  padding:8px;
+  border-radius:8px;
+}
+
+.ok{background:var(--ok);color:#00754a}
+.bad{background:var(--bad);color:#b00020}
+
+.section-title{
+  margin:14px 0 8px;
+  background:var(--green);
+  color:white;
+  padding:9px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.layout{
+  background:white;
+  border:2px solid #222;
+  border-radius:8px;
+  height:330px;
+  position:relative;
+  overflow:hidden;
+}
+
+.area{
+  position:absolute;
+  border:1px solid #222;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:bold;
+  text-align:center;
+}
+
+.gray{background:#aaa}
+.cbs{background:#cfe0f6}
+.pick{background:#ffc000}
+.hand{background:#d8ccff}
+.espresso{background:#9a856d}
+.pos{background:#c6e0b4}
+.food{background:#ffe699}
+.horno{background:#f4b183}
+.brew{background:#6f5445;color:white}
+
+.partner{
+  background:var(--green);
+  color:white;
+  font-size:20px;
+}
+
+.support{
+  background:white;
+  color:var(--green);
+  border:1px solid var(--green);
+  font-size:18px;
+}
+
+.table-wrap{
+  margin-top:12px;
+  overflow-x:auto;
+  background:white;
+  border-radius:10px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+}
+
+th{
+  background:var(--green);
+  color:white;
+  padding:8px;
+  font-size:12px;
+}
+
+td{
+  border:1px solid #bbb;
+  padding:7px;
+  font-size:12px;
+}
+
+.small-note{
+  font-size:12px;
+  color:#555;
+  margin-top:6px;
+}
+
+@media(max-width:760px){
+  .grid,.grid-3,.grid-5{
+    grid-template-columns:1fr;
+  }
+
+  .layout{
+    height:280px;
+  }
+
+  .partner{
+    font-size:16px;
+  }
+
+  .area{
+    font-size:9px;
+  }
+
+  .header{
+    font-size:16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">PBT Web 2.0 — CAFE / DRIVE THRU</div>
+
+<div class="container">
+
+  <div class="card" style="margin-bottom:12px">
+    <h3>Cargar base Product Mix y Canales</h3>
+    <div class="card-body">
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      <div class="small-note">
+        Carga el archivo <b>Product Mix y canales por DayPart 2026</b>.  
+        La hoja requerida debe llamarse <b>Base_Canal+Mix26</b>.
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('cafe')">CAFE</button>
+    <button class="tab" onclick="showTab('dt')">DRIVE THRU</button>
+  </div>
+
+  <section id="cafe" class="page active"></section>
+  <section id="dt" class="page"></section>
+
+</div>
+
+<script>
+let rawData = [];
+let activeTab = "cafe";
+
+const categories = ["Espresso","Café filtrado","CBS","Food","Otro"];
+
+const configs = {
+  cafe:{
+    title:"CAFE",
+    maxPartners:6,
+    defaultPartners:6,
+    channelLabels:["Lobby","Pick up & Delivery","DT"],
+    defaultChannels:{Lobby:90,"Pick up & Delivery":10,DT:0},
+    defaultMix:{Espresso:36,"Café filtrado":7,CBS:15,Food:25,Otro:17},
+    partners:[
+      ["A","POS 1","Sí","Rutina café filtrado / té"],
+      ["B","POS 2","Sí","Rutina café filtrado / té"],
+      ["C","Bar 1","Sí","Rutina Bebidas / apoyo CBS"],
+      ["D","Bar 2","Sí","Rutina Bebidas / apoyo CBS"],
+      ["E","Horno 1","Sí","Rutina alimentos calientes"],
+      ["F","Soporte","No","Customer Support flexible"]
+    ]
+  },
+  dt:{
+    title:"DRIVE THRU",
+    maxPartners:9,
+    defaultPartners:9,
+    channelLabels:["Lobby","Pick up & Delivery","DT"],
+    defaultChannels:{Lobby:10,"Pick up & Delivery":17,DT:73},
+    defaultMix:{Espresso:32,"Café filtrado":6,CBS:17,Food:27,Otro:18},
+    partners:[
+      ["A","DTR","Sí","Función DTR"],
+      ["B","DTO","Sí","Función DTO"],
+      ["C","POS 1","Sí","Rutina café filtrado / té"],
+      ["D","Bar 1","Sí","Rutina Bebidas"],
+      ["E","Bar 2","Sí","Rutina Bebidas"],
+      ["F","CBS 1","Sí","Rutina CBS"],
+      ["G","Horno 1","Sí","Rutina alimentos calientes"],
+      ["H","Hand off 1","Sí","Rutina Hand off"],
+      ["I","Soporte","No","Customer Support flexible"]
+    ]
+  }
+};
+
+function buildPage(tab){
+  const c = configs[tab];
+
+  document.getElementById(tab).innerHTML = `
+    <div class="grid">
+      <div class="card">
+        <h3>Filtros dinámicos</h3>
+        <div class="card-body">
+          <div class="grid-3">
+            <div><label>Q</label><select id="${tab}_q" multiple></select></div>
+            <div><label>DayPart</label><select id="${tab}_daypart" multiple></select></div>
+            <div><label>Mes</label><select id="${tab}_mes" multiple></select></div>
+            <div><label>Semana</label><select id="${tab}_semana" multiple></select></div>
+            <div><label>Weekpart</label><select id="${tab}_weekpart" multiple></select></div>
+            <div><label>Partners</label><input id="${tab}_partners" type="number" min="1" max="${c.maxPartners}" value="${c.defaultPartners}"></div>
+          </div>
+          <br>
+          <label>Tienda</label>
+          <select id="${tab}_tienda" multiple></select>
+          <br><br>
+          <button class="btn" onclick="updateLayout('${tab}')">Actualizar Lay Out</button>
+          <button class="btn secondary" onclick="resetManual('${tab}')">Reset manual</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Comentarios</h3>
+        <div class="card-body">
+          <textarea id="${tab}_comments">Plan dinámico acorde a filtros seleccionados, mix de productos, canales y cantidad de partners.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:12px">
+      <div class="card">
+        <h3>Distribución de canales</h3>
+        <div class="card-body">
+          <div class="grid-3">
+            ${c.channelLabels.map(x=>`
+              <div>
+                <label>${x}</label>
+                <input class="${tab}_channel" data-key="${x}" type="number" value="${c.defaultChannels[x]}">
+              </div>`).join("")}
+          </div>
+          <div id="${tab}_channel_total" class="total"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Mix de productos</h3>
+        <div class="card-body">
+          <div class="grid-5">
+            ${categories.map(x=>`
+              <div>
+                <label>${x}</label>
+                <input class="${tab}_mix" data-key="${x}" type="number" value="${c.defaultMix[x]}">
+              </div>`).join("")}
+          </div>
+          <div id="${tab}_mix_total" class="total"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Plan de distribución recomendado — ${c.title}</div>
+    <div class="layout" id="${tab}_layout">${tab==="cafe" ? cafeLayout() : dtLayout()}</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Partner</th><th>Estación</th><th>Fijo</th><th>Rutinas</th></tr>
+        </thead>
+        <tbody id="${tab}_tbody"></tbody>
+      </table>
+    </div>
+  `;
+
+  document.querySelectorAll(`#${tab} input, #${tab} select`).forEach(el=>{
+    el.addEventListener("change",()=>updateLayout(tab));
+    el.addEventListener("input",()=>validateTotals(tab));
+  });
+
+  updateLayout(tab);
+}
+
+function cafeLayout(){
+return `
+<div class="area gray" style="left:0;top:0;width:14%;height:30%"></div>
+<div class="area cbs" style="left:14%;top:0;width:22%;height:10%">CBS</div>
+<div class="area brew" style="left:50%;top:0;width:22%;height:10%">Café Filtrado</div>
+<div class="area horno" style="left:80%;top:0;width:7%;height:10%">Horno</div>
+<div class="area horno" style="left:87%;top:0;width:7%;height:10%">Horno</div>
+<div class="area pick" style="left:0;top:30%;width:7%;height:20%">Pick up</div>
+<div class="area hand" style="left:0;top:50%;width:14%;height:10%">Hand off</div>
+<div class="area espresso" style="left:20%;top:50%;width:7%;height:10%">Espresso</div>
+<div class="area espresso" style="left:34%;top:50%;width:7%;height:10%">Espresso</div>
+<div class="area pos" style="left:48%;top:50%;width:7%;height:10%">POS</div>
+<div class="area pos" style="left:62%;top:50%;width:7%;height:10%">POS</div>
+<div class="area food" style="left:78%;top:50%;width:14%;height:10%">Foodcase</div>
+<div class="area partner" data-letter="A" style="left:48%;top:39%;width:7%;height:10%">A</div>
+<div class="area partner" data-letter="B" style="left:62%;top:39%;width:7%;height:10%">B</div>
+<div class="area partner" data-letter="C" style="left:20%;top:39%;width:7%;height:10%">C</div>
+<div class="area partner" data-letter="D" style="left:34%;top:39%;width:7%;height:10%">D</div>
+<div class="area partner" data-letter="E" style="left:80%;top:10%;width:7%;height:10%">E</div>
+<div class="area support" data-letter="F" style="left:41%;top:61%;width:7%;height:10%">F</div>
+`;
+}
+
+function dtLayout(){
+return `
+<div class="area gray" style="left:7%;top:0;width:90%;height:38%"></div>
+<div class="area" style="left:14%;top:0;width:14%;height:10%;background:white">Ventana DT</div>
+<div class="area partner" data-letter="A" style="left:21%;top:10%;width:7%;height:9%">A</div>
+<div class="area partner" data-letter="B" style="left:21%;top:19%;width:7%;height:9%">B</div>
+<div class="area" style="left:28%;top:10%;width:7%;height:9%;background:#ff99cc">DTR</div>
+<div class="area" style="left:28%;top:19%;width:7%;height:9%;background:#ff99cc">DTO</div>
+<div class="area cbs" style="left:7%;top:28%;width:7%;height:26%">CBS</div>
+<div class="area pick" style="left:7%;top:54%;width:7%;height:18%">Pick up</div>
+<div class="area hand" style="left:7%;top:72%;width:14%;height:9%">Hand off</div>
+<div class="area brew" style="left:58%;top:28%;width:21%;height:9%">Café Filtrado</div>
+<div class="area horno" style="left:86%;top:28%;width:7%;height:9%">Horno</div>
+<div class="area horno" style="left:93%;top:28%;width:7%;height:9%">Horno</div>
+<div class="area espresso" style="left:28%;top:72%;width:7%;height:9%">Espresso</div>
+<div class="area espresso" style="left:42%;top:72%;width:7%;height:9%">Espresso</div>
+<div class="area pos" style="left:58%;top:72%;width:7%;height:9%">POS</div>
+<div class="area pos" style="left:72%;top:72%;width:7%;height:9%">POS</div>
+<div class="area food" style="left:86%;top:72%;width:14%;height:9%">Foodcase</div>
+<div class="area partner" data-letter="C" style="left:58%;top:63%;width:7%;height:9%">C</div>
+<div class="area partner" data-letter="D" style="left:30%;top:63%;width:7%;height:9%">D</div>
+<div class="area partner" data-letter="E" style="left:44%;top:63%;width:7%;height:9%">E</div>
+<div class="area partner" data-letter="F" style="left:16%;top:37%;width:7%;height:9%">F</div>
+<div class="area partner" data-letter="G" style="left:86%;top:37%;width:7%;height:9%">G</div>
+<div class="area partner" data-letter="H" style="left:16%;top:63%;width:7%;height:9%">H</div>
+<div class="area support" data-letter="I" style="left:51%;top:82%;width:7%;height:9%">I</div>
+`;
+}
+
+function showTab(tab){
+  activeTab = tab;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.querySelector(`button[onclick="showTab('${tab}')"]`).classList.add("active");
+  document.getElementById(tab).classList.add("active");
+}
+
+function selectedValues(id){
+  return [...document.getElementById(id).selectedOptions].map(o=>o.value);
+}
+
+function fillSelect(id, values){
+  const el = document.getElementById(id);
+  const selected = selectedValues(id);
+  el.innerHTML = [...new Set(values.filter(Boolean))].sort().map(v =>
+    `<option value="${v}" ${selected.includes(v) ? "selected" : ""}>${v}</option>`
+  ).join("");
+}
+
+function normalizeCategory(x){
+  x = String(x||"").toLowerCase();
+  if(x.includes("filtrado") || x.includes("brew")) return "Café filtrado";
+  if(x.includes("cbs")) return "CBS";
+  if(x.includes("espresso")) return "Espresso";
+  if(x.includes("food")) return "Food";
+  return "Otro";
+}
+
+function normalizeChannel(x){
+  x = String(x||"").toLowerCase();
+  if(x.includes("dt") || x.includes("drive")) return "DT";
+  if(x.includes("pick") || x.includes("delivery") || x.includes("mop")) return "Pick up & Delivery";
+  return "Lobby";
+}
+
+function passFilter(row, tab){
+  const checks = [
+    ["q","Q"],
+    ["daypart","DayPart"],
+    ["mes","Mes"],
+    ["semana","Semana"],
+    ["weekpart","Weekpart"],
+    ["tienda","Tienda"]
+  ];
+
+  return checks.every(([id,key])=>{
+    const values = selectedValues(`${tab}_${id}`);
+    return values.length === 0 || values.includes(String(row[key]||""));
+  });
+}
+
+function tiendaTieneDT(tienda){
+  return rawData.some(r => 
+    String(r.Tienda||"") === tienda && 
+    normalizeChannel(r["Tipo Orden"]) === "DT" && 
+    Number(r.Venta||0) > 0
+  );
+}
+
+function populateFilters(){
+  ["cafe","dt"].forEach(tab=>{
+    fillSelect(`${tab}_q`, rawData.map(r=>String(r.Q||"")));
+    fillSelect(`${tab}_daypart`, rawData.map(r=>String(r.DayPart||"")));
+    fillSelect(`${tab}_mes`, rawData.map(r=>String(r.Mes||"")));
+    fillSelect(`${tab}_semana`, rawData.map(r=>String(r.Semana||"")));
+    fillSelect(`${tab}_weekpart`, rawData.map(r=>String(r.Weekpart||"")));
+
+    let tiendas = [...new Set(rawData.map(r=>String(r.Tienda||"")).filter(Boolean))];
+
+    if(tab === "cafe"){
+      tiendas = tiendas.filter(t=>!tiendaTieneDT(t));
+    }else{
+      tiendas = tiendas.filter(t=>tiendaTieneDT(t));
+    }
+
+    fillSelect(`${tab}_tienda`, tiendas);
+  });
+}
+
+function calculateFromData(tab){
+  if(rawData.length === 0) return;
+
+  const filtered = rawData.filter(r=>passFilter(r,tab));
+  if(filtered.length === 0) return;
+
+  const catSum = {};
+  const channelSum = {};
+  let total = 0;
+
+  filtered.forEach(r=>{
+    const venta = Number(r.Venta || 0);
+    total += venta;
+
+    const cat = normalizeCategory(r.Category);
+    const ch = normalizeChannel(r["Tipo Orden"]);
+
+    catSum[cat] = (catSum[cat] || 0) + venta;
+    channelSum[ch] = (channelSum[ch] || 0) + venta;
+  });
+
+  if(total <= 0) return;
+
+  document.querySelectorAll(`.${tab}_mix`).forEach(input=>{
+    const key = input.dataset.key;
+    input.value = Math.round(((catSum[key] || 0) / total) * 100);
+  });
+
+  let validChannels = tab === "cafe" 
+    ? ["Lobby","Pick up & Delivery"] 
+    : ["Lobby","Pick up & Delivery","DT"];
+
+  let channelTotal = validChannels.reduce((s,k)=>s+(channelSum[k]||0),0);
+
+  document.querySelectorAll(`.${tab}_channel`).forEach(input=>{
+    const key = input.dataset.key;
+    if(tab === "cafe" && key === "DT"){
+      input.value = 0;
+    }else{
+      input.value = channelTotal > 0 
+        ? Math.round(((channelSum[key] || 0) / channelTotal) * 100)
+        : 0;
+    }
+  });
+
+  fixTo100(`.${tab}_mix`);
+  fixTo100(`.${tab}_channel`);
+}
+
+function fixTo100(selector){
+  const inputs = [...document.querySelectorAll(selector)];
+  const total = inputs.reduce((s,i)=>s+Number(i.value||0),0);
+  if(inputs.length && total !== 100){
+    inputs[0].value = Number(inputs[0].value||0) + (100-total);
+  }
+}
+
+function validateTotals(tab){
+  validateGroup(`.${tab}_mix`,`${tab}_mix_total`);
+  validateGroup(`.${tab}_channel`,`${tab}_channel_total`);
+}
+
+function validateGroup(selector,id){
+  const total = [...document.querySelectorAll(selector)].reduce((s,i)=>s+Number(i.value||0),0);
+  const box = document.getElementById(id);
+  box.textContent = total === 100 ? `Total: ${total}% ✅` : `Total: ${total}% ⚠️ Ajustar a 100%`;
+  box.className = total === 100 ? "total ok" : "total bad";
+}
+
+function updatePartnerTable(tab){
+  const input = document.getElementById(`${tab}_partners`);
+  const max = configs[tab].maxPartners;
+  let qty = Math.max(1, Math.min(Number(input.value||1), max));
+  input.value = qty;
+
+  const rows = configs[tab].partners.slice(0, qty);
+  document.getElementById(`${tab}_tbody`).innerHTML = rows.map(r=>`
+    <tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>
+  `).join("");
+
+  document.querySelectorAll(`#${tab}_layout [data-letter]`).forEach(el=>{
+    const letter = el.dataset.letter;
+    el.style.display = rows.some(r=>r[0]===letter) ? "flex" : "none";
+  });
+}
+
+function updateComments(tab){
+  const p = document.getElementById(`${tab}_partners`).value;
+  document.getElementById(`${tab}_comments`).value =
+    tab === "cafe"
+    ? `Plan CAFE calculado con ${p} partners. Canales CAFE = Lobby + Pick up & Delivery. Mix ajustado a 100%.`
+    : `Plan DRIVE THRU calculado con ${p} partners. Canales DT = Lobby + Pick up & Delivery + DT. Mix ajustado a 100%.`;
+}
+
+function updateLayout(tab){
+  calculateFromData(tab);
+  validateTotals(tab);
+  updatePartnerTable(tab);
+  updateComments(tab);
+}
+
+function resetManual(tab){
+  const c = configs[tab];
+
+  document.querySelectorAll(`.${tab}_channel`).forEach(i=>{
+    i.value = c.defaultChannels[i.dataset.key];
+  });
+
+  document.querySelectorAll(`.${tab}_mix`).forEach(i=>{
+    i.value = c.defaultMix[i.dataset.key];
+  });
+
+  updateLayout(tab);
+}
+
+document.getElementById("fileInput").addEventListener("change", async e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer);
+  const sheet = workbook.Sheets["Base_Canal+Mix26"];
+
+  if(!sheet){
+    alert("No se encontró la hoja Base_Canal+Mix26");
+    return;
+  }
+
+  rawData = XLSX.utils.sheet_to_json(sheet, {defval:""});
+  populateFilters();
+  updateLayout("cafe");
+  updateLayout("dt");
+  alert("Base cargada correctamente.");
+});
+
+buildPage("cafe");
+buildPage("dt");
+</script>
+
+</body>
+</html>
