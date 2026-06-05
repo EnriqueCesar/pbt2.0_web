@@ -388,6 +388,10 @@ td{
   font-size:12px;
 }
 
+
+.cell-tag{display:inline-block;margin-left:4px;color:#555;font-size:10px;font-weight:700;}
+.excel-note{font-size:11px;color:#006241;font-weight:900;margin-top:4px;text-align:right;}
+
 @media(max-width:760px){
   .header{font-size:18px;padding:12px}
   .logo{font-size:20px}
@@ -562,7 +566,7 @@ function buildPage(tab){
         </div>
 
         <button class="btn" onclick="actualizarLayout()">Actualizar Layout</button>
-        <div class="status" id="${tab}_status">Base lista.</div>
+        <div class="status" id="${tab}_status">Base lista.</div><div class="excel-note">Solo se actualizan valores enteros en D14, G14:H14/I14 y K14:L14/K15:L15/K16.</div>
       </div>
     </div>
 
@@ -572,7 +576,7 @@ function buildPage(tab){
         <div class="box-body">
           <div class="metric-grid">
             <div class="metric">
-              <label>Partners</label>
+              <label>Partners <span class="cell-tag">D14</span></label>
               <span id="${tab}_partners_show">${state[tab].partners}</span>
             </div>
           </div>
@@ -721,11 +725,11 @@ function render(tab){
   document.getElementById(`${tab}_partners_show`).textContent = state[tab].partners;
 
   document.getElementById(`${tab}_mix`).innerHTML = categories.map(k=>`
-    <div class="metric"><label>${k}</label><span>${pct(mix[k] || 0)}</span></div>
+    <div class="metric"><label>${k}<span class="cell-tag">${["K14","L14","K15","L15","K16"][categories.indexOf(k)]}</span></label><span>${pct(mix[k] || 0)}</span></div>
   `).join("");
 
   document.getElementById(`${tab}_channels`).innerHTML = c.channelLabels.map(k=>`
-    <div class="metric"><label>${k}</label><span>${pct(canalValue(canales,k))}</span></div>
+    <div class="metric"><label>${k}<span class="cell-tag">${tab==="dt" ? ["G14","H14","I14"][c.channelLabels.indexOf(k)] : ["G14","H14"][c.channelLabels.indexOf(k)]}</span></label><span>${pct(canalValue(canales,k))}</span></div>
   `).join("");
 
   const mixTotal = categories.reduce((s,k)=>s + Math.round(Number(mix[k] || 0)),0);
