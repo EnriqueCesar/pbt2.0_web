@@ -1,37 +1,971 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>PBT Web 2.0</title>
 
-<link rel="stylesheet" href="css/styles.css">
+<style>
+:root{
+  --green:#00754a;
+  --green2:#006241;
+  --soft:#f4f7f5;
+  --line:#d9d9d9;
+  --text:#1f1f1f;
+  --ok:#dff3e7;
+  --bad:#ffe1e1;
+}
 
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#f5f5f5;
+  color:var(--text);
+}
+
+.header{
+  background:var(--green);
+  color:white;
+  padding:16px;
+  font-size:24px;
+  font-weight:900;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.logo{font-size:26px}
+
+.badge{
+  background:white;
+  color:var(--green);
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:900;
+}
+
+.container{
+  max-width:1500px;
+  margin:auto;
+  padding:12px;
+}
+
+.tabs{
+  display:flex;
+  gap:10px;
+  margin-bottom:12px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:#f5f5f5;
+  padding:8px 0;
+}
+
+.tab{
+  flex:1;
+  border:none;
+  background:#ddd;
+  color:#111;
+  padding:15px;
+  border-radius:14px;
+  font-weight:900;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.tab.active{
+  background:var(--green);
+  color:white;
+}
+
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.kpi{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  text-align:center;
+}
+
+.kpi label{
+  display:block;
+  font-size:13px;
+  color:#555;
+  font-weight:700;
+}
+
+.kpi span{
+  display:block;
+  color:var(--green);
+  font-size:22px;
+  font-weight:900;
+}
+
+.page{display:none}
+.page.active{display:block}
+
+.card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:visible;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+
+.card-title{
+  background:var(--green);
+  color:white;
+  padding:10px;
+  font-weight:900;
+  text-align:center;
+  border-radius:14px 14px 0 0;
+}
+
+.card-body{padding:12px}
+
+.filters{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:10px;
+}
+
+.filter label{
+  display:block;
+  font-weight:900;
+  font-size:13px;
+  margin-bottom:5px;
+}
+
+.ms{
+  position:relative;
+}
+
+.ms-btn{
+  width:100%;
+  border:1px solid #bbb;
+  background:white;
+  border-radius:12px;
+  padding:10px;
+  min-height:42px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.ms-panel{
+  display:none;
+  position:absolute;
+  top:47px;
+  left:0;
+  right:0;
+  background:white;
+  border:1px solid #ccc;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+  z-index:100;
+  padding:8px;
+  max-height:260px;
+  overflow:auto;
+}
+
+.ms.open .ms-panel{display:block}
+
+.ms-search{
+  width:100%;
+  padding:8px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  margin-bottom:6px;
+}
+
+.ms-actions{
+  display:flex;
+  gap:6px;
+  margin-bottom:6px;
+}
+
+.ms-actions button{
+  flex:1;
+  border:none;
+  border-radius:8px;
+  padding:7px;
+  background:#eee;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.ms-option{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:7px;
+  font-size:13px;
+}
+
+.ms-option input{width:18px;height:18px}
+
+.partner-select{
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #bbb;
+  font-weight:900;
+}
+
+.btn{
+  background:var(--green);
+  color:white;
+  border:none;
+  border-radius:12px;
+  padding:12px 18px;
+  font-weight:900;
+  cursor:pointer;
+  width:100%;
+  margin-top:10px;
+  font-size:15px;
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.metric-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+
+.metric-grid.channels.cafe{
+  grid-template-columns:repeat(2,1fr);
+}
+
+.metric-grid.channels.dt{
+  grid-template-columns:repeat(3,1fr);
+}
+
+.metric{
+  background:#f4f4f4;
+  border-radius:10px;
+  padding:8px;
+  text-align:center;
+  border:1px solid #ddd;
+}
+
+.metric label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+}
+
+.metric span{
+  display:block;
+  margin-top:4px;
+  font-size:20px;
+  font-weight:900;
+  color:var(--green);
+}
+
+.total{
+  margin-top:8px;
+  padding:8px;
+  text-align:center;
+  border-radius:10px;
+  font-weight:900;
+}
+
+.ok{background:var(--ok);color:var(--green)}
+.bad{background:var(--bad);color:#a40000}
+
+.section-title{
+  background:var(--green);
+  color:white;
+  padding:10px;
+  border-radius:12px;
+  font-weight:900;
+  margin:14px 0 8px;
+}
+
+.layout-wrap{
+  background:white;
+  border:2px solid #222;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.layout{
+  height:330px;
+  position:relative;
+  background:white;
+}
+
+.area{
+  position:absolute;
+  border:1px solid #222;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  font-size:11px;
+  font-weight:900;
+}
+
+.gray{background:#aaa}
+.cbs{background:#cfe0f6}
+.pick{background:#ffc000}
+.hand{background:#d8ccff}
+.espresso{background:#9a856d}
+.pos{background:#c6e0b4}
+.food{background:#ffe699}
+.horno{background:#f4b183}
+.brew{background:#6f5445;color:white}
+
+.partner{
+  background:var(--green);
+  color:white;
+  font-size:20px;
+}
+
+.support{
+  background:white;
+  color:var(--green);
+  border:1px solid var(--green);
+  font-size:18px;
+}
+
+details{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:14px;
+  margin-top:12px;
+  overflow:hidden;
+}
+
+summary{
+  background:var(--green);
+  color:white;
+  padding:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.table-wrap{overflow-x:auto}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+}
+
+th{
+  background:#006241;
+  color:white;
+  padding:8px;
+  font-size:12px;
+}
+
+td{
+  border:1px solid #bbb;
+  padding:7px;
+  font-size:12px;
+}
+
+.floating-update{
+  position:fixed;
+  bottom:18px;
+  right:18px;
+  z-index:200;
+  background:var(--green);
+  color:white;
+  border:none;
+  border-radius:999px;
+  padding:14px 18px;
+  font-weight:900;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+  cursor:pointer;
+}
+
+.status{
+  font-size:13px;
+  color:#555;
+  margin-top:8px;
+}
+
+@media(max-width:760px){
+  .header{
+    font-size:18px;
+    padding:12px;
+  }
+
+  .logo{
+    font-size:20px;
+  }
+
+  .tabs{
+    overflow-x:auto;
+  }
+
+  .tab{
+    min-width:150px;
+    padding:12px;
+  }
+
+  .kpis{
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
+
+  .kpi{
+    padding:8px;
+  }
+
+  .kpi span{
+    font-size:18px;
+  }
+
+  .filters{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+
+  .grid2{
+    grid-template-columns:1fr;
+  }
+
+  .metric-grid,
+  .metric-grid.channels.cafe,
+  .metric-grid.channels.dt{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .layout{
+    height:230px;
+    transform:scale(.78);
+    transform-origin:top left;
+    width:128%;
+  }
+
+  .layout-wrap{
+    height:235px;
+  }
+
+  .area{
+    font-size:8px;
+  }
+
+  .partner{
+    font-size:14px;
+  }
+
+  .floating-update{
+    left:16px;
+    right:16px;
+    bottom:12px;
+    width:auto;
+  }
+
+  body{
+    padding-bottom:70px;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <header class="header">
-
-<div class="logo">
-☕ PBT Web 2.0
-</div>
-
-<div class="tabs">
-
-<button class="tab active"
-onclick="showTab('cafe')">
-CAFE
-</button>
-
-<button class="tab"
-onclick="showTab('dt')">
-DRIVE THRU
-</button>
-
-</div>
-
+  <div class="logo">☕ PBT Web 2.0</div>
+  <div class="badge">Base conectada: data.js</div>
 </header>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" id="tabCafe" onclick="showTab('cafe')">CAFE</button>
+    <button class="tab" id="tabDt" onclick="showTab('dt')">DRIVE THRU</button>
+  </div>
+
+  <section class="kpis">
+    <div class="kpi"><label>Ventas filtradas</label><span id="kpiVentas">$0</span></div>
+    <div class="kpi"><label>Mix productos</label><span id="kpiMix">0%</span></div>
+    <div class="kpi"><label>Canales</label><span id="kpiCanales">0%</span></div>
+    <div class="kpi"><label>Partners</label><span id="kpiPartners">0</span></div>
+  </section>
+
+  <section id="cafe" class="page active"></section>
+  <section id="dt" class="page"></section>
+
+</div>
+
+<button class="floating-update" onclick="actualizarLayout()">🔄 Actualizar Layout</button>
+
+<script src="data.js"></script>
+
+<script>
+let activeTab = "cafe";
+
+const state = {
+  cafe:{filters:{q:[],daypart:[],mes:[],semana:[],weekpart:[],tienda:[]},partners:6},
+  dt:{filters:{q:[],daypart:[],mes:[],semana:[],weekpart:[],tienda:[]},partners:9}
+};
+
+const config = {
+  cafe:{
+    title:"CAFE",
+    maxPartners:11,
+    channelLabels:["Lobby","Pick up & Delivery"],
+    partners:[
+      ["A","POS 1","Sí","Rutina café filtrado / té"],
+      ["B","POS 2","Sí","Rutina café filtrado / té"],
+      ["C","Bar 1","Sí","Rutina Bebidas / apoyo CBS"],
+      ["D","Bar 2","Sí","Rutina Bebidas / apoyo CBS"],
+      ["E","Horno 1","Sí","Rutina alimentos calientes"],
+      ["F","Soporte","No","Customer Support flexible"],
+      ["G","CBS","No","Apoyo CBS / bebidas frías"],
+      ["H","Hand off","No","Entrega y conexión"],
+      ["I","Soporte","No","Apoyo producción"],
+      ["J","Flexible","No","Apoyo peak"],
+      ["K","Flexible","No","Apoyo operación"]
+    ]
+  },
+  dt:{
+    title:"DRIVE THRU",
+    maxPartners:13,
+    channelLabels:["Lobby","Pick up & Delivery","Drive Thru"],
+    partners:[
+      ["A","DTR","Sí","Función DTR"],
+      ["B","DTO","Sí","Función DTO"],
+      ["C","POS 1","Sí","Rutina café filtrado / té"],
+      ["D","Bar 1","Sí","Rutina Bebidas"],
+      ["E","Bar 2","Sí","Rutina Bebidas"],
+      ["F","CBS 1","Sí","Rutina CBS"],
+      ["G","Horno 1","Sí","Rutina alimentos calientes"],
+      ["H","Hand off 1","Sí","Rutina Hand off"],
+      ["I","Soporte","No","Customer Support flexible"],
+      ["J","Soporte DT","No","Apoyo línea DT"],
+      ["K","Soporte Café","No","Apoyo barra / POS"],
+      ["L","Runner","No","Apoyo entrega"],
+      ["M","Flexible","No","Apoyo peak"]
+    ]
+  }
+};
+
+const categories = ["Espresso","Café filtrado","CBS","Food","Otro"];
+
+function money(n){
+  return n.toLocaleString("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0});
+}
+
+function pct(n){
+  return `${Math.round(n)}%`;
+}
+
+function getVal(row,col){
+  if(window.PBT && typeof PBT.val === "function") return PBT.val(row,col);
+  return row[col];
+}
+
+function getDataRows(){
+  if(window.PBT && PBT.rows) return PBT.rows;
+  if(window.PBT_DATA) return window.PBT_DATA;
+  return [];
+}
+
+function normalizeTipo(x){
+  x = String(x||"").toLowerCase();
+  if(x.includes("drive") || x === "dt") return "Drive Thru";
+  if(x.includes("pick") || x.includes("delivery")) return "Pick up & Delivery";
+  return "Lobby";
+}
+
+function normalizeCategory(x){
+  x = String(x||"").toLowerCase();
+  if(x.includes("espresso")) return "Espresso";
+  if(x.includes("filtrado")) return "Café filtrado";
+  if(x.includes("cbs")) return "CBS";
+  if(x.includes("food")) return "Food";
+  return "Otro";
+}
+
+function uniqueFromPBT(col){
+  if(window.PBT && PBT.dicts){
+    const idx = PBT.cols.indexOf(col);
+    if(idx >= 0) return [...PBT.dicts[idx]].filter(Boolean).sort();
+  }
+  return [...new Set(getDataRows().map(r=>getVal(r,col)).filter(Boolean))].sort();
+}
+
+function tiendasPorTipo(tab){
+  const tiendas = uniqueFromPBT("Tienda");
+  if(window.PBT && typeof PBT.hasDTStoreName === "function"){
+    return tiendas.filter(t => tab === "dt" ? PBT.hasDTStoreName(t) : !PBT.hasDTStoreName(t));
+  }
+
+  const dtStores = new Set();
+  getDataRows().forEach(r=>{
+    if(normalizeTipo(getVal(r,"TipoOrden") || getVal(r,"Tipo Orden")) === "Drive Thru" && Number(getVal(r,"Venta")) > 0){
+      dtStores.add(getVal(r,"Tienda"));
+    }
+  });
+
+  return tiendas.filter(t => tab === "dt" ? dtStores.has(t) : !dtStores.has(t));
+}
+
+function buildPage(tab){
+  const c = config[tab];
+
+  document.getElementById(tab).innerHTML = `
+    <div class="card">
+      <div class="card-title">Filtros dinámicos</div>
+      <div class="card-body">
+        <div class="filters">
+          ${filterHTML(tab,"q","Q")}
+          ${filterHTML(tab,"daypart","DayPart")}
+          ${filterHTML(tab,"mes","Mes")}
+          ${filterHTML(tab,"semana","Semana")}
+          ${filterHTML(tab,"weekpart","Weekpart")}
+          <div class="filter">
+            <label>Partners</label>
+            <select class="partner-select" id="${tab}_partners" onchange="setPartners('${tab}')">
+              ${Array.from({length:c.maxPartners},(_,i)=>`<option value="${i+1}" ${i+1===state[tab].partners?"selected":""}>${i+1}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          ${filterHTML(tab,"tienda", tab==="cafe" ? "Tienda (solo sin % DT)" : "Tienda (solo con % DT)")}
+        </div>
+
+        <button class="btn" onclick="actualizarLayout()">Actualizar Layout</button>
+        <div class="status" id="${tab}_status">Base lista.</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Distribución de canales</div>
+        <div class="card-body">
+          <div class="metric-grid channels ${tab}" id="${tab}_channels"></div>
+          <div class="total ok" id="${tab}_channelTotal">Total: 100%</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Mix de productos</div>
+        <div class="card-body">
+          <div class="metric-grid" id="${tab}_mix"></div>
+          <div class="total ok" id="${tab}_mixTotal">Total: 100%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Plan de distribución recomendado — ${c.title}</div>
+
+    <div class="layout-wrap">
+      <div class="layout" id="${tab}_layout">${tab==="cafe" ? cafeLayout() : dtLayout()}</div>
+    </div>
+
+    <details>
+      <summary>Rutinas de Partners</summary>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Partner</th><th>Estación</th><th>Fijo</th><th>Rutinas</th></tr></thead>
+          <tbody id="${tab}_tbody"></tbody>
+        </table>
+      </div>
+    </details>
+  `;
+}
+
+function filterHTML(tab,key,label){
+  return `
+  <div class="filter">
+    <label>${label}</label>
+    <div class="ms" id="${tab}_${key}_ms">
+      <button class="ms-btn" type="button" onclick="toggleMS('${tab}','${key}')">
+        <span id="${tab}_${key}_label">Todos</span><span>▾</span>
+      </button>
+      <div class="ms-panel">
+        <input class="ms-search" placeholder="Buscar..." oninput="searchMS('${tab}','${key}',this.value)">
+        <div class="ms-actions">
+          <button type="button" onclick="selectAllMS('${tab}','${key}')">Todos</button>
+          <button type="button" onclick="clearMS('${tab}','${key}')">Limpiar</button>
+        </div>
+        <div id="${tab}_${key}_options"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function populateFilters(){
+  ["cafe","dt"].forEach(tab=>{
+    fillMS(tab,"q",uniqueFromPBT("Q"));
+    fillMS(tab,"daypart",uniqueFromPBT("DayPart"));
+    fillMS(tab,"mes",uniqueFromPBT("Mes"));
+    fillMS(tab,"semana",uniqueFromPBT("Semana"));
+    fillMS(tab,"weekpart",uniqueFromPBT("Weekpart"));
+    fillMS(tab,"tienda",tiendasPorTipo(tab));
+  });
+}
+
+function fillMS(tab,key,values){
+  const box = document.getElementById(`${tab}_${key}_options`);
+  if(!box) return;
+
+  box.innerHTML = values.map(v=>`
+    <label class="ms-option" data-text="${String(v).toLowerCase()}">
+      <input type="checkbox" value="${v}" onchange="changeMS('${tab}','${key}')">
+      <span>${v}</span>
+    </label>
+  `).join("");
+
+  updateMSLabel(tab,key);
+}
+
+function toggleMS(tab,key){
+  document.querySelectorAll(".ms").forEach(x=>{
+    if(x.id !== `${tab}_${key}_ms`) x.classList.remove("open");
+  });
+  document.getElementById(`${tab}_${key}_ms`).classList.toggle("open");
+}
+
+function searchMS(tab,key,value){
+  const q = value.toLowerCase();
+  document.querySelectorAll(`#${tab}_${key}_options .ms-option`).forEach(o=>{
+    o.style.display = o.dataset.text.includes(q) ? "flex" : "none";
+  });
+}
+
+function changeMS(tab,key){
+  state[tab].filters[key] = [...document.querySelectorAll(`#${tab}_${key}_options input:checked`)].map(x=>x.value);
+  updateMSLabel(tab,key);
+}
+
+function selectAllMS(tab,key){
+  document.querySelectorAll(`#${tab}_${key}_options input`).forEach(x=>x.checked=true);
+  changeMS(tab,key);
+}
+
+function clearMS(tab,key){
+  document.querySelectorAll(`#${tab}_${key}_options input`).forEach(x=>x.checked=false);
+  changeMS(tab,key);
+}
+
+function updateMSLabel(tab,key){
+  const arr = state[tab].filters[key] || [];
+  const label = document.getElementById(`${tab}_${key}_label`);
+  if(!label) return;
+  label.textContent = arr.length === 0 ? "Todos" : arr.length === 1 ? arr[0] : `${arr.length} seleccionados`;
+}
+
+function passFilters(row,tab){
+  const f = state[tab].filters;
+  const checks = [
+    ["q","Q"],
+    ["daypart","DayPart"],
+    ["mes","Mes"],
+    ["semana","Semana"],
+    ["weekpart","Weekpart"],
+    ["tienda","Tienda"]
+  ];
+
+  return checks.every(([key,col])=>{
+    if(!f[key] || f[key].length===0) return true;
+    return f[key].includes(String(getVal(row,col)));
+  });
+}
+
+function belongsToTab(row,tab){
+  const tienda = getVal(row,"Tienda");
+  if(window.PBT && typeof PBT.hasDTStoreName === "function"){
+    return tab === "dt" ? PBT.hasDTStoreName(tienda) : !PBT.hasDTStoreName(tienda);
+  }
+
+  const tipo = normalizeTipo(getVal(row,"TipoOrden") || getVal(row,"Tipo Orden"));
+  return tab === "dt" ? tipo === "Drive Thru" : tipo !== "Drive Thru";
+}
+
+function calculate(tab){
+  const rows = getDataRows();
+  let total = 0;
+  let count = 0;
+  const mix = {};
+  const channels = {};
+  const stores = new Set();
+
+  rows.forEach(r=>{
+    if(!belongsToTab(r,tab)) return;
+    if(!passFilters(r,tab)) return;
+
+    const venta = Number(getVal(r,"Venta")) || 0;
+    const cat = normalizeCategory(getVal(r,"Category"));
+    const tipo = normalizeTipo(getVal(r,"TipoOrden") || getVal(r,"Tipo Orden"));
+    const tienda = getVal(r,"Tienda");
+
+    if(tab === "cafe" && tipo === "Drive Thru") return;
+
+    total += venta;
+    count++;
+    stores.add(tienda);
+    mix[cat] = (mix[cat] || 0) + venta;
+    channels[tipo] = (channels[tipo] || 0) + venta;
+  });
+
+  return {total,count,stores:stores.size,mix,channels};
+}
+
+function percentMap(obj,total,keys){
+  const result = {};
+  keys.forEach(k=>result[k]= total > 0 ? Math.round(((obj[k]||0)/total)*100) : 0);
+
+  const sum = keys.reduce((s,k)=>s+result[k],0);
+  if(keys.length && sum !== 100 && total > 0){
+    result[keys[0]] += 100 - sum;
+  }
+
+  return result;
+}
+
+function render(tab){
+  const c = config[tab];
+  const data = calculate(tab);
+
+  const mixPct = percentMap(data.mix,data.total,categories);
+  const channelKeys = c.channelLabels;
+  const channelTotalBase = channelKeys.reduce((s,k)=>s+(data.channels[k]||0),0);
+  const channelPct = percentMap(data.channels,channelTotalBase,channelKeys);
+
+  document.getElementById(`${tab}_mix`).innerHTML = categories.map(k=>`
+    <div class="metric"><label>${k}</label><span>${pct(mixPct[k]||0)}</span></div>
+  `).join("");
+
+  document.getElementById(`${tab}_channels`).innerHTML = channelKeys.map(k=>`
+    <div class="metric"><label>${k}</label><span>${pct(channelPct[k]||0)}</span></div>
+  `).join("");
+
+  document.getElementById(`${tab}_mixTotal`).textContent = `Total: ${categories.reduce((s,k)=>s+(mixPct[k]||0),0)}%`;
+  document.getElementById(`${tab}_channelTotal`).textContent = `Total: ${channelKeys.reduce((s,k)=>s+(channelPct[k]||0),0)}%`;
+
+  document.getElementById("kpiVentas").textContent = money(data.total);
+  document.getElementById("kpiMix").textContent = `${categories.reduce((s,k)=>s+(mixPct[k]||0),0)}%`;
+  document.getElementById("kpiCanales").textContent = `${channelKeys.reduce((s,k)=>s+(channelPct[k]||0),0)}%`;
+  document.getElementById("kpiPartners").textContent = state[tab].partners;
+
+  document.getElementById(`${tab}_status`).textContent =
+    `Registros filtrados: ${data.count.toLocaleString("es-MX")} | Tiendas visibles: ${data.stores}`;
+
+  updatePartnerTable(tab);
+}
+
+function setPartners(tab){
+  state[tab].partners = Number(document.getElementById(`${tab}_partners`).value);
+  render(tab);
+}
+
+function updatePartnerTable(tab){
+  const qty = state[tab].partners;
+  const rows = config[tab].partners.slice(0,qty);
+
+  document.getElementById(`${tab}_tbody`).innerHTML = rows.map(r=>`
+    <tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>
+  `).join("");
+
+  document.querySelectorAll(`#${tab}_layout [data-letter]`).forEach(el=>{
+    el.style.display = rows.some(r=>r[0]===el.dataset.letter) ? "flex" : "none";
+  });
+}
+
+function actualizarLayout(){
+  render(activeTab);
+}
+
+function showTab(tab){
+  activeTab = tab;
+
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+
+  document.getElementById(tab).classList.add("active");
+  document.getElementById(tab==="cafe" ? "tabCafe" : "tabDt").classList.add("active");
+
+  render(tab);
+}
+
+function cafeLayout(){
+return `
+<div class="area gray" style="left:0;top:0;width:14%;height:30%"></div>
+<div class="area cbs" style="left:14%;top:0;width:22%;height:10%">CBS</div>
+<div class="area brew" style="left:50%;top:0;width:22%;height:10%">Café Filtrado</div>
+<div class="area horno" style="left:80%;top:0;width:7%;height:10%">Horno</div>
+<div class="area horno" style="left:87%;top:0;width:7%;height:10%">Horno</div>
+<div class="area pick" style="left:0;top:30%;width:7%;height:20%">Pick up</div>
+<div class="area hand" style="left:0;top:50%;width:14%;height:10%">Hand off</div>
+<div class="area espresso" style="left:20%;top:50%;width:7%;height:10%">Espresso</div>
+<div class="area espresso" style="left:34%;top:50%;width:7%;height:10%">Espresso</div>
+<div class="area pos" style="left:48%;top:50%;width:7%;height:10%">POS</div>
+<div class="area pos" style="left:62%;top:50%;width:7%;height:10%">POS</div>
+<div class="area food" style="left:78%;top:50%;width:14%;height:10%">Foodcase</div>
+${["A","B","C","D","E","F","G","H","I","J","K"].map((l,i)=>`
+<div class="area ${i<5?"partner":"support"}" data-letter="${l}" style="left:${8+i*8}%;top:${i<5?39:72}%;width:7%;height:10%">${l}</div>
+`).join("")}`;
+}
+
+function dtLayout(){
+return `
+<div class="area gray" style="left:7%;top:0;width:90%;height:38%"></div>
+<div class="area" style="left:14%;top:0;width:14%;height:10%;background:white">Ventana DT</div>
+<div class="area cbs" style="left:7%;top:28%;width:7%;height:26%">CBS</div>
+<div class="area pick" style="left:7%;top:54%;width:7%;height:18%">Pick up</div>
+<div class="area hand" style="left:7%;top:72%;width:14%;height:9%">Hand off</div>
+<div class="area brew" style="left:58%;top:28%;width:21%;height:9%">Café Filtrado</div>
+<div class="area horno" style="left:86%;top:28%;width:7%;height:9%">Horno</div>
+<div class="area horno" style="left:93%;top:28%;width:7%;height:9%">Horno</div>
+<div class="area espresso" style="left:28%;top:72%;width:7%;height:9%">Espresso</div>
+<div class="area espresso" style="left:42%;top:72%;width:7%;height:9%">Espresso</div>
+<div class="area pos" style="left:58%;top:72%;width:7%;height:9%">POS</div>
+<div class="area pos" style="left:72%;top:72%;width:7%;height:9%">POS</div>
+<div class="area food" style="left:86%;top:72%;width:14%;height:9%">Foodcase</div>
+${["A","B","C","D","E","F","G","H","I","J","K","L","M"].map((l,i)=>`
+<div class="area ${i<8?"partner":"support"}" data-letter="${l}" style="left:${12+(i%9)*9}%;top:${i<2?10:i<8?62:84}%;width:7%;height:9%">${l}</div>
+`).join("")}`;
+}
+
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".ms")){
+    document.querySelectorAll(".ms").forEach(x=>x.classList.remove("open"));
+  }
+});
+
+function init(){
+  if(!window.PBT && !window.PBT_DATA){
+    alert("No se encontró data.js. Verifica que esté en la misma carpeta que index.html");
+    return;
+  }
+
+  buildPage("cafe");
+  buildPage("dt");
+  populateFilters();
+  render("cafe");
+}
+
+init();
+</script>
+
+</body>
+</html>
