@@ -82,35 +82,6 @@ body{
   color:white;
 }
 
-.kpis{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  margin-bottom:12px;
-}
-
-.kpi{
-  background:white;
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:10px;
-  text-align:center;
-}
-
-.kpi label{
-  display:block;
-  font-size:13px;
-  color:#555;
-  font-weight:700;
-}
-
-.kpi span{
-  display:block;
-  color:var(--green);
-  font-size:22px;
-  font-weight:900;
-}
-
 .page{display:none}
 .page.active{display:block}
 
@@ -414,22 +385,12 @@ td{
   }
 
   .logo{font-size:20px}
-
   .tabs{overflow-x:auto}
 
   .tab{
     min-width:150px;
     padding:12px;
   }
-
-  .kpis{
-    grid-template-columns:repeat(2,1fr);
-    gap:8px;
-  }
-
-  .kpi{padding:8px}
-
-  .kpi span{font-size:18px}
 
   .filters{
     grid-template-columns:1fr 1fr;
@@ -452,9 +413,7 @@ td{
   }
 
   .layout-wrap{height:235px}
-
   .area{font-size:8px}
-
   .partner{font-size:14px}
 
   .floating-update{
@@ -483,13 +442,6 @@ td{
     <button class="tab" id="tabDt" onclick="showTab('dt')">DRIVE THRU</button>
   </div>
 
-  <section class="kpis">
-    <div class="kpi"><label>Ventas filtradas</label><span id="kpiVentas">$0</span></div>
-    <div class="kpi"><label>Mix productos</label><span id="kpiMix">0%</span></div>
-    <div class="kpi"><label>Canales</label><span id="kpiCanales">0%</span></div>
-    <div class="kpi"><label>Partners</label><span id="kpiPartners">0</span></div>
-  </section>
-
   <section id="cafe" class="page active"></section>
   <section id="dt" class="page"></section>
 
@@ -507,75 +459,104 @@ const state = {
   dt:{filters:{q:[],daypart:[],mes:[],semana:[],weekpart:[],tienda:[]},partners:9}
 };
 
+const categories = ["Espresso","Café filtrado","CBS","Food","Otro"];
+
 const config = {
   cafe:{
     title:"CAFE",
     maxPartners:11,
     tipoEngine:"CAFE",
-    channelLabels:["Lobby","Pick up & Delivery"],
-    partners:[
-      ["A","POS 1","Sí","Rutina café filtrado / té"],
-      ["B","POS 2","Sí","Rutina café filtrado / té"],
-      ["C","Bar 1","Sí","Rutina Bebidas / apoyo CBS"],
-      ["D","Bar 2","Sí","Rutina Bebidas / apoyo CBS"],
-      ["E","Horno 1","Sí","Rutina alimentos calientes"],
-      ["F","Soporte","No","Customer Support flexible"],
-      ["G","CBS","No","Apoyo CBS / bebidas frías"],
-      ["H","Hand off","No","Entrega y conexión"],
-      ["I","Soporte","No","Apoyo producción"],
-      ["J","Flexible","No","Apoyo peak"],
-      ["K","Flexible","No","Apoyo operación"]
-    ]
+    channelLabels:["Lobby","Pick up & Delivery"]
   },
   dt:{
     title:"DRIVE THRU",
     maxPartners:13,
     tipoEngine:"DT",
-    channelLabels:["Lobby","Pick up & Delivery","DT"],
-    partners:[
-      ["A","DTR","Sí","Función DTR"],
-      ["B","DTO","Sí","Función DTO"],
-      ["C","POS 1","Sí","Rutina café filtrado / té"],
-      ["D","Bar 1","Sí","Rutina Bebidas"],
-      ["E","Bar 2","Sí","Rutina Bebidas"],
-      ["F","CBS 1","Sí","Rutina CBS"],
-      ["G","Horno 1","Sí","Rutina alimentos calientes"],
-      ["H","Hand off 1","Sí","Rutina Hand off"],
-      ["I","Soporte","No","Customer Support flexible"],
-      ["J","Soporte DT","No","Apoyo línea DT"],
-      ["K","Soporte Café","No","Apoyo barra / POS"],
-      ["L","Runner","No","Apoyo entrega"],
-      ["M","Flexible","No","Apoyo peak"]
-    ]
+    channelLabels:["Lobby","Pick up & Delivery","DT"]
   }
 };
 
-const categories = ["Espresso","Café filtrado","CBS","Food","Otro"];
+const ROUTINES = {
+  cafe:{
+    1:[["A","POS 1","Sí","Rutina café filtrado / té"]],
+    2:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","Bar 1","Sí","Rutina Bebidas"]],
+    3:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","Bar 1","Sí","Rutina Bebidas"],["C","Horno 1","Sí","Rutina alimentos calientes"]],
+    4:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","Bar 1","Sí","Rutina Bebidas"],["C","CBS 1","Sí","Rutina CBS"],["D","Horno 1","Sí","Rutina alimentos calientes"]],
+    5:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","Bar 1","Sí","Rutina Bebidas"],["C","CBS 1","Sí","Rutina CBS"],["D","Horno 1","Sí","Rutina alimentos calientes"],["E","Hand off 1","Sí","Rutina Hand off"]],
+    6:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","POS 2","Sí","Rutina café filtrado / té"],["C","Bar 1","Sí","Rutina Bebidas, Rutina CBS"],["D","Bar 2","Sí","Rutina Bebidas, Rutina CBS"],["E","Horno 1","Sí","Rutina alimentos calientes"],["F","Soporte","No","Customer Support, Flexible"]],
+    7:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","POS 2","Sí","Rutina café filtrado / té"],["C","Bar 1","Sí","Rutina Bebidas"],["D","Bar 2","Sí","Rutina Bebidas"],["E","CBS 1","Sí","Rutina CBS"],["F","Horno 1","Sí","Rutina alimentos calientes"],["G","Soporte","No","Flexible"]],
+    8:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","POS 2","Sí","Rutina café filtrado / té"],["C","Bar 1","Sí","Rutina Bebidas"],["D","Bar 2","Sí","Rutina Bebidas"],["E","CBS 1","Sí","Rutina CBS"],["F","Horno 1","Sí","Rutina alimentos calientes"],["G","Hand off 1","Sí","Rutina Hand off"],["H","Soporte","No","Flexible"]],
+    9:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","POS 2","Sí","Rutina café filtrado / té"],["C","Bar 1","Sí","Rutina Bebidas"],["D","Bar 2","Sí","Rutina Bebidas"],["E","CBS 1","Sí","Rutina CBS"],["F","CBS 2","Sí","Rutina CBS"],["G","Horno 1","Sí","Rutina alimentos calientes"],["H","Hand off 1","Sí","Rutina Hand off"],["I","Soporte","No","Flexible"]],
+    10:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","POS 2","Sí","Rutina café filtrado / té"],["C","Bar 1","Sí","Rutina Bebidas"],["D","Bar 2","Sí","Rutina Bebidas"],["E","CBS 1","Sí","Rutina CBS"],["F","CBS 2","Sí","Rutina CBS"],["G","Horno 1","Sí","Rutina alimentos calientes"],["H","Hand off 1","Sí","Rutina Hand off"],["I","Soporte","No","Flexible"],["J","Soporte","No","Flexible"]],
+    11:[["A","POS 1","Sí","Rutina café filtrado / té"],["B","POS 2","Sí","Rutina café filtrado / té"],["C","Bar 1","Sí","Rutina Bebidas"],["D","Bar 2","Sí","Rutina Bebidas"],["E","CBS 1","Sí","Rutina CBS"],["F","CBS 2","Sí","Rutina CBS"],["G","Horno 1","Sí","Rutina alimentos calientes"],["H","Hand off 1","Sí","Rutina Hand off"],["I","Soporte","No","Flexible"],["J","Soporte","No","Flexible"],["K","Soporte","No","Flexible"]]
+  },
+  dt:{
+    1:[["A","DTR","Sí","Función DTR"]],
+    2:[["A","DTR","Sí","Función DTR"],["B","DTO","Sí","Función DTO"]],
+    3:[["A","DTR","Sí","Función DTR"],["B","DTO","Sí","Función DTO"],["C","Bar 1","Sí","Rutina Bebidas"]],
+    4:[["A","DTR","Sí","Función DTR"],["B","DTO","Sí","Función DTO"],["C","POS 1","Sí","Rutina café filtrado / té"],["D","Bar 1","Sí","Rutina Bebidas"]],
+    5:[["A","DTR","Sí","Función DTR"],["B","DTO","Sí","Función DTO"],["C","POS 1","Sí","Rutina café filtrado / té"],["D","Bar 1","Sí","Rutina Bebidas"],["E","Horno 1","Sí","Rutina alimentos calientes"]],
+    6:[["A","DTR","Sí","Función DTR"],["B","DTO","Sí","Función DTO"],["C","POS 1","Sí","Rutina café filtrado / té"],["D","Bar 1","Sí","Rutina Bebidas"],["E","Bar 2","Sí","Rutina Bebidas"],["F","Soporte","No","Customer Support, Flexible"]],
+    7:[["A","DTR","Sí","Función DTR"],["B","DTO","Sí","Función DTO"],["C","POS 1","Sí","Rutina café filtrado / té"],["D","Bar 1","Sí","Rutina Bebidas"],["E","Bar 2","Sí","Rutina Bebidas"],["F","CBS 1","Sí","Rutina CBS"],["G","Horno 1","Sí","Rutina alimentos calientes"]],
+    8:[["A","DTR","Sí","Función DTR"],["B","DTO","Sí","Función DTO"],["C","POS 1","Sí","Rutina café filtrado / té"],["D","Bar 1","Sí","Rutina Bebidas"],["E","Bar 2","Sí","Rutina Bebidas"],["F","CBS 1","Sí","Rutina CBS"],["G","Horno 1","Sí","Rutina alimentos calientes"],["H","Hand off 1","Sí","Rutina Hand off"]],
+    9:[["A","DTR","Sí","Función DTR"],["B","DTO","Sí","Función DTO"],["C","POS 1","Sí","Rutina café filtrado / té"],["D","Bar 1","Sí","Rutina Bebidas"],["E","Bar 2","Sí","Rutina Bebidas"],["F","CBS 1","Sí","Rutina CBS"],["G","Horno 1","Sí","Rutina alimentos calientes"],["H","Hand off 1","Sí","Rutina Hand off"],["I","Soporte","No","Customer Support, Flexible"]]
+  }
+};
+
+for(let i=10;i<=13;i++){
+  ROUTINES.dt[i]=[
+    ...ROUTINES.dt[9],
+    ["J","Soporte DT","No","Apoyo línea DT"],
+    ["K","Soporte Café","No","Apoyo barra / POS"],
+    ["L","Runner","No","Apoyo entrega"],
+    ["M","Flexible","No","Apoyo peak"]
+  ].slice(0,i);
+}
+
+const POS = {
+  cafe:{
+    "POS 1":{left:48,top:40,w:7,h:10,fijo:true},
+    "POS 2":{left:62,top:40,w:7,h:10,fijo:true},
+    "Bar 1":{left:20,top:40,w:7,h:10,fijo:true},
+    "Bar 2":{left:34,top:40,w:7,h:10,fijo:true},
+    "CBS 1":{left:16,top:23,w:7,h:10,fijo:true},
+    "CBS 2":{left:25,top:23,w:7,h:10,fijo:true},
+    "Horno 1":{left:80,top:10,w:7,h:10,fijo:true},
+    "Hand off 1":{left:10,top:61,w:7,h:10,fijo:true},
+    "Soporte":{left:47,top:61,w:7,h:10,fijo:false}
+  },
+  dt:{
+    "DTR":{left:21,top:10,w:7,h:9,fijo:true},
+    "DTO":{left:21,top:19,w:7,h:9,fijo:true},
+    "POS 1":{left:58,top:63,w:7,h:9,fijo:true},
+    "POS 2":{left:72,top:63,w:7,h:9,fijo:true},
+    "Bar 1":{left:30,top:63,w:7,h:9,fijo:true},
+    "Bar 2":{left:44,top:63,w:7,h:9,fijo:true},
+    "CBS 1":{left:16,top:37,w:7,h:9,fijo:true},
+    "Horno 1":{left:86,top:37,w:7,h:9,fijo:true},
+    "Hand off 1":{left:16,top:63,w:7,h:9,fijo:true},
+    "Soporte":{left:51,top:82,w:7,h:9,fijo:false},
+    "Soporte DT":{left:60,top:82,w:7,h:9,fijo:false},
+    "Soporte Café":{left:69,top:82,w:7,h:9,fijo:false},
+    "Runner":{left:78,top:82,w:7,h:9,fijo:false},
+    "Flexible":{left:87,top:82,w:7,h:9,fijo:false}
+  }
+};
 
 function money(n){
-  return Number(n || 0).toLocaleString("es-MX",{
-    style:"currency",
-    currency:"MXN",
-    maximumFractionDigits:0
-  });
+  return Number(n || 0).toLocaleString("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0});
 }
 
-function pct(n){
-  return `${Math.round(Number(n || 0))}%`;
-}
+function pct(n){ return `${Math.round(Number(n || 0))}%`; }
 
 function getSourceList(name){
-  try{
-    if(name === "Q") return typeof PBT_QS !== "undefined" ? PBT_QS : [];
-    if(name === "DayPart") return typeof PBT_DAYPARTS !== "undefined" ? PBT_DAYPARTS : [];
-    if(name === "Mes") return typeof PBT_MESES !== "undefined" ? PBT_MESES : [];
-    if(name === "Semana") return typeof PBT_SEMANAS !== "undefined" ? PBT_SEMANAS : [];
-    if(name === "Weekpart") return typeof PBT_WEEKPARTS !== "undefined" ? PBT_WEEKPARTS : [];
-    if(name === "TiendaCafe") return typeof TIENDAS_CAFE !== "undefined" ? TIENDAS_CAFE : [];
-    if(name === "TiendaDT") return typeof TIENDAS_DT !== "undefined" ? TIENDAS_DT : [];
-  }catch(e){
-    return [];
-  }
+  if(name==="Q") return typeof PBT_QS!=="undefined" ? PBT_QS : [];
+  if(name==="DayPart") return typeof PBT_DAYPARTS!=="undefined" ? PBT_DAYPARTS : [];
+  if(name==="Mes") return typeof PBT_MESES!=="undefined" ? PBT_MESES : [];
+  if(name==="Semana") return typeof PBT_SEMANAS!=="undefined" ? PBT_SEMANAS : [];
+  if(name==="Weekpart") return typeof PBT_WEEKPARTS!=="undefined" ? PBT_WEEKPARTS : [];
+  if(name==="TiendaCafe") return typeof TIENDAS_CAFE!=="undefined" ? TIENDAS_CAFE : [];
+  if(name==="TiendaDT") return typeof TIENDAS_DT!=="undefined" ? TIENDAS_DT : [];
   return [];
 }
 
@@ -640,12 +621,7 @@ function buildPage(tab){
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>Partner</th>
-              <th>Estación</th>
-              <th>Fijo</th>
-              <th>Rutinas</th>
-            </tr>
+            <tr><th>Partner</th><th>Estación</th><th>Fijo</th><th>Rutinas</th></tr>
           </thead>
           <tbody id="${tab}_tbody"></tbody>
         </table>
@@ -687,15 +663,12 @@ function populateFilters(){
 
 function fillMS(tab,key,values){
   const box = document.getElementById(`${tab}_${key}_options`);
-  if(!box) return;
-
   box.innerHTML = (values || []).map(v=>`
     <label class="ms-option" data-text="${String(v).toLowerCase()}">
       <input type="checkbox" value="${String(v).replaceAll('"','&quot;')}" onchange="changeMS('${tab}','${key}')">
       <span>${v}</span>
     </label>
   `).join("");
-
   updateMSLabel(tab,key);
 }
 
@@ -703,14 +676,11 @@ function toggleMS(tab,key){
   document.querySelectorAll(".ms").forEach(x=>{
     if(x.id !== `${tab}_${key}_ms`) x.classList.remove("open");
   });
-
-  const ms = document.getElementById(`${tab}_${key}_ms`);
-  if(ms) ms.classList.toggle("open");
+  document.getElementById(`${tab}_${key}_ms`).classList.toggle("open");
 }
 
 function searchMS(tab,key,value){
   const q = String(value || "").toLowerCase();
-
   document.querySelectorAll(`#${tab}_${key}_options .ms-option`).forEach(o=>{
     o.style.display = o.dataset.text.includes(q) ? "flex" : "none";
   });
@@ -733,62 +703,45 @@ function clearMS(tab,key){
 
 function updateMSLabel(tab,key){
   const arr = state[tab].filters[key] || [];
-  const label = document.getElementById(`${tab}_${key}_label`);
-  if(!label) return;
-
-  label.textContent = arr.length === 0 ? "Todos" : arr.length === 1 ? arr[0] : `${arr.length} seleccionados`;
+  document.getElementById(`${tab}_${key}_label`).textContent =
+    arr.length === 0 ? "Todos" : arr.length === 1 ? arr[0] : `${arr.length} seleccionados`;
 }
 
 function getEngineFilters(tab){
   const f = state[tab].filters;
-
-  return {
-    Q:f.q,
-    DayPart:f.daypart,
-    Mes:f.mes,
-    Semana:f.semana,
-    Weekpart:f.weekpart,
-    Tienda:f.tienda
-  };
+  return {Q:f.q,DayPart:f.daypart,Mes:f.mes,Semana:f.semana,Weekpart:f.weekpart,Tienda:f.tienda};
 }
 
 function calculate(tab){
   if(typeof PBT_ENGINE === "undefined" || typeof PBT_ENGINE.calculate !== "function"){
-    return {
-      venta:0,
-      registros:0,
-      tiendasVisibles:0,
-      mix:{Espresso:0,"Café filtrado":0,CBS:0,Food:0,Otro:0},
-      canales:{Lobby:0,"Pick up & Delivery":0,DT:0}
-    };
+    return {venta:0,registros:0,tiendasVisibles:0,mix:{},canales:{}};
   }
-
   return PBT_ENGINE.calculate(getEngineFilters(tab), config[tab].tipoEngine);
+}
+
+function canalValue(canales,k){
+  if(k === "Pick up & Delivery"){
+    return canales["Pick up & Delivery"] ?? canales.PickUpDelivery ?? canales["PickUpDelivery"] ?? 0;
+  }
+  return canales[k] ?? 0;
 }
 
 function render(tab){
   const c = config[tab];
   const data = calculate(tab);
-
   const mix = data.mix || {};
   const canales = data.canales || {};
 
   document.getElementById(`${tab}_mix`).innerHTML = categories.map(k=>`
-    <div class="metric">
-      <label>${k}</label>
-      <span>${pct(mix[k] || 0)}</span>
-    </div>
+    <div class="metric"><label>${k}</label><span>${pct(mix[k] || 0)}</span></div>
   `).join("");
 
   document.getElementById(`${tab}_channels`).innerHTML = c.channelLabels.map(k=>`
-    <div class="metric">
-      <label>${k}</label>
-      <span>${pct(canales[k] || 0)}</span>
-    </div>
+    <div class="metric"><label>${k}</label><span>${pct(canalValue(canales,k))}</span></div>
   `).join("");
 
   const mixTotal = categories.reduce((s,k)=>s + Number(mix[k] || 0),0);
-  const channelTotal = c.channelLabels.reduce((s,k)=>s + Number(canales[k] || 0),0);
+  const channelTotal = c.channelLabels.reduce((s,k)=>s + Number(canalValue(canales,k)),0);
 
   document.getElementById(`${tab}_mixTotal`).textContent = `Total: ${mixTotal}%`;
   document.getElementById(`${tab}_mixTotal`).className = mixTotal === 100 ? "total ok" : "total bad";
@@ -796,15 +749,15 @@ function render(tab){
   document.getElementById(`${tab}_channelTotal`).textContent = `Total: ${channelTotal}%`;
   document.getElementById(`${tab}_channelTotal`).className = channelTotal === 100 ? "total ok" : "total bad";
 
-  document.getElementById("kpiVentas").textContent = money(data.venta || 0);
-  document.getElementById("kpiMix").textContent = `${mixTotal}%`;
-  document.getElementById("kpiCanales").textContent = `${channelTotal}%`;
-  document.getElementById("kpiPartners").textContent = state[tab].partners;
-
   document.getElementById(`${tab}_status`).textContent =
     `Registros filtrados: ${Number(data.registros || 0).toLocaleString("es-MX")} | Tiendas visibles: ${Number(data.tiendasVisibles || 0).toLocaleString("es-MX")}`;
 
   updatePartnerTable(tab);
+}
+
+function getRoutineRows(tab){
+  const qty = state[tab].partners;
+  return ROUTINES[tab][qty] || ROUTINES[tab][Object.keys(ROUTINES[tab]).length];
 }
 
 function setPartners(tab){
@@ -813,21 +766,18 @@ function setPartners(tab){
 }
 
 function updatePartnerTable(tab){
-  const qty = state[tab].partners;
-  const rows = config[tab].partners.slice(0,qty);
+  const rows = getRoutineRows(tab);
 
   document.getElementById(`${tab}_tbody`).innerHTML = rows.map(r=>`
-    <tr>
-      <td>${r[0]}</td>
-      <td>${r[1]}</td>
-      <td>${r[2]}</td>
-      <td>${r[3]}</td>
-    </tr>
+    <tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>
   `).join("");
 
-  document.querySelectorAll(`#${tab}_layout [data-letter]`).forEach(el=>{
-    el.style.display = rows.some(r=>r[0]===el.dataset.letter) ? "flex" : "none";
-  });
+  const layer = document.getElementById(`${tab}_markers`);
+  layer.innerHTML = rows.map(r=>{
+    const p = POS[tab][r[1]] || POS[tab]["Soporte"];
+    const cls = p.fijo ? "partner" : "support";
+    return `<div class="area ${cls}" data-letter="${r[0]}" style="left:${p.left}%;top:${p.top}%;width:${p.w}%;height:${p.h}%">${r[0]}</div>`;
+  }).join("");
 }
 
 function actualizarLayout(){
@@ -836,13 +786,10 @@ function actualizarLayout(){
 
 function showTab(tab){
   activeTab = tab;
-
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-
   document.getElementById(tab).classList.add("active");
   document.getElementById(tab==="cafe" ? "tabCafe" : "tabDt").classList.add("active");
-
   render(tab);
 }
 
@@ -860,9 +807,7 @@ return `
 <div class="area pos" style="left:48%;top:50%;width:7%;height:10%">POS</div>
 <div class="area pos" style="left:62%;top:50%;width:7%;height:10%">POS</div>
 <div class="area food" style="left:78%;top:50%;width:14%;height:10%">Foodcase</div>
-${["A","B","C","D","E","F","G","H","I","J","K"].map((l,i)=>`
-<div class="area ${i<5?"partner":"support"}" data-letter="${l}" style="left:${8+i*8}%;top:${i<5?39:72}%;width:7%;height:10%">${l}</div>
-`).join("")}
+<div id="cafe_markers"></div>
 `;
 }
 
@@ -881,9 +826,7 @@ return `
 <div class="area pos" style="left:58%;top:72%;width:7%;height:9%">POS</div>
 <div class="area pos" style="left:72%;top:72%;width:7%;height:9%">POS</div>
 <div class="area food" style="left:86%;top:72%;width:14%;height:9%">Foodcase</div>
-${["A","B","C","D","E","F","G","H","I","J","K","L","M"].map((l,i)=>`
-<div class="area ${i<8?"partner":"support"}" data-letter="${l}" style="left:${12+(i%9)*9}%;top:${i<2?10:i<8?62:84}%;width:7%;height:9%">${l}</div>
-`).join("")}
+<div id="dt_markers"></div>
 `;
 }
 
@@ -895,7 +838,7 @@ document.addEventListener("click",e=>{
 
 function init(){
   if(typeof PBT_ENGINE === "undefined"){
-    alert("No se encontró PBT_ENGINE. Verifica que data.js esté en la misma carpeta que index.html y que haya cargado correctamente.");
+    alert("No se encontró PBT_ENGINE. Verifica data.js.");
     return;
   }
 
