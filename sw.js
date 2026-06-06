@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pbt-web-v2';
+const CACHE_NAME = 'pbt-web-v3-ios-fix';
 
 self.addEventListener('install', event => {
   self.skipWaiting();
