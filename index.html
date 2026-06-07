@@ -427,8 +427,6 @@ populateFilters();
 syncPartnerTabletSelects();
 applyOperationalContext(true);
 setInterval(()=>applyOperationalContext(false),60000);
-
-populateFilters();syncPartnerTabletSelects(); applyOperationalContext(true); setInterval(()=>applyOperationalContext(false), 60*1000);
 </script>
 <script>
 if ('serviceWorker' in navigator) {
