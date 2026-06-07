@@ -94,6 +94,39 @@
   .partner-name-input{width:92px;max-width:92px;font-size:11px}
 }
 
+/* --- Letra + nombre dentro del layout sin alterar coordenadas --- */
+.partner-marker{
+  flex-direction:column;
+  gap:1px;
+  line-height:1;
+  padding:1px 2px;
+  overflow:visible;
+  z-index:25;
+}
+.partner-marker .marker-letter{
+  display:block;
+  font-weight:900;
+  font-size:clamp(10px,1.45vw,18px);
+  line-height:.95;
+}
+.partner-marker .marker-name{
+  display:block;
+  max-width:90px;
+  font-weight:900;
+  font-size:clamp(7px,.85vw,11px);
+  line-height:1;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.partner-marker .marker-name:empty{display:none}
+@media(max-width:760px){
+  .partner-marker{padding:1px;gap:0}
+  .partner-marker .marker-letter{font-size:11px}
+  .partner-marker .marker-name{font-size:7px;max-width:44px}
+}
+
 </style></head><body><header class="header"><div class="logo">☕ PBT Web 2.0</div><div class="badge">Product Mix y canales | Sin decimales | Lógica PBT.24</div></header><div class="container"><div class="tabs"><button class="tab active" id="tabCafe" onclick="showTab('cafe')">CAFE</button><button class="tab" id="tabDt" onclick="showTab('dt')">DRIVE THRU</button></div><section id="cafe" class="page active"></section><section id="dt" class="page"></section></div><nav class="quick-nav" aria-label="Navegación rápida PBT">
   <button type="button" class="secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Inicio</button>
   <button type="button" onclick="showTab('cafe');window.scrollTo({top:0,behavior:'smooth'})">CAFE</button>
@@ -149,8 +182,8 @@ function layoutMarkers(tab, play){
   const cs0 = cs0Raw.filter(x=>!(tab==='cafe' && (Number(x[1])+17)>=25 && (Number(x[1])+17)<=27)); /* Café: oculta filas 25, 26 y 27 sin alterar la lógica */
   const movedTablet = tabletOn ? cs0.find(x=>Number(x[1])===3 && Number(x[2])===4) : null; /* Excel E20 -> J17 cuando D15 = Sí */
   const cs = tabletOn ? cs0.filter(x=>!(Number(x[1])===3 && Number(x[2])===4)) : cs0;
-  let html = cs.map(([layout,row,col,letter])=>{const p=cellPos(row+17,col+1); const clean=String(letter).replace('.','').trim(); const cls=fixedByPartner[clean]?'partner':'support'; return `<div class="area ${cls}" style="left:${p.left}%;top:${p.top}%;width:${p.width}%;height:${p.height}%">${letter}</div>`;}).join('');
-  if(movedTablet){const letter=movedTablet[3]; const clean=String(letter).replace('.','').trim(); const cls=fixedByPartner[clean]?'partner':'support'; const p=cellPos(18,10); html += `<div class="area ${cls}" title="Partner Tablet: E20 → J17" style="left:${p.left}%;top:0%;width:${p.width}%;height:${p.height}%">${letter}</div>`;}
+  let html = cs.map(([layout,row,col,letter])=>{const p=cellPos(row+17,col+1); const clean=String(letter).replace('.','').trim(); const cls=fixedByPartner[clean]?'partner':'support'; return `<div class="area ${cls} partner-marker" style="left:${p.left}%;top:${p.top}%;width:${p.width}%;height:${p.height}%"><span class="marker-letter">${letter}</span><span class="marker-name">${getPartnerName(tab, clean)}</span></div>`;}).join('');
+  if(movedTablet){const letter=movedTablet[3]; const clean=String(letter).replace('.','').trim(); const cls=fixedByPartner[clean]?'partner':'support'; const p=cellPos(18,10); html += `<div class="area ${cls} partner-marker" title="Partner Tablet: E20 → J17" style="left:${p.left}%;top:0%;width:${p.width}%;height:${p.height}%"><span class="marker-letter">${letter}</span><span class="marker-name">${getPartnerName(tab, clean)}</span></div>`;}
   return html;
 }
 function renderLayout(tab, play){ const el=document.getElementById(`${tab}_layout`); if(el) el.innerHTML=staticLayout(tab)+layoutMarkers(tab,play); }
