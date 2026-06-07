@@ -255,8 +255,13 @@ function renderRoutines(tab, play){
   const tabletOn = tab==='dt' && state.dt && state.dt.partnerTablet==='Sí';
   tbody.innerHTML = rows.map(r=>{
     const letra=String(r[0]||'');
-    const estacion = tabletOn ? `${r[1]} + Carril` : r[1];
-    const rutina = tabletOn ? `${r[3]} + Tablet` : r[3];
+    const clean=letra.replace('.','').trim().toUpperCase();
+    /* Partner Tablet replica PBT.24: solo impacta la letra B / DTO.
+       - NO: todas las rutinas quedan originales.
+       - SÍ: B se mueve visualmente a J17 y solo B agrega + Carril / + Tablet. */
+    const isDtoTablet = tabletOn && clean==='B';
+    const estacion = isDtoTablet ? `${r[1]} + Carril` : r[1];
+    const rutina = isDtoTablet ? `${r[3]} + Tablet` : r[3];
     return `<tr><td><div class="partner-name-cell"><span class="partner-letter">${letra}</span>${partnerSelectHTML(tab, letra)}</div></td><td>${estacion}</td><td>${r[2]}</td><td>${rutina}</td></tr>`;
   }).join('');
 }
