@@ -127,33 +127,7 @@
   .partner-marker .marker-name{font-size:7px;max-width:44px}
 }
 
-</style></head><body><header class="header"><div class="logo">☕ PBT Web 2.0</div><div class="badge">Product Mix y canales | Sin decimales | Lógica PBT.24</div></header><div class="container"><div class="tabs">
-
-<button class="tab active"
-id="tabCafe"
-onclick="showTab('cafe')">
-CAFE
-</button>
-
-<button class="tab"
-id="tabDt"
-onclick="showTab('dt')">
-DRIVE THRU
-</button>
-
-<button class="tab"
-id="tabEquipo"
-onclick="showTab('equipo')">
-EQUIPO
-</button>
-
-</div>
-
-<section id="cafe" class="page active"></section>
-
-<section id="dt" class="page"></section>
-
-<section id="equipo" class="page"></section></div><nav class="quick-nav" aria-label="Navegación rápida PBT">
+</style></head><body><header class="header"><div class="logo">☕ PBT Web 2.0</div><div class="badge">Product Mix y canales | Sin decimales | Lógica PBT.24</div></header><div class="container"><div class="tabs"><button class="tab active" id="tabCafe" onclick="showTab('cafe')">CAFE</button><button class="tab" id="tabDt" onclick="showTab('dt')">DRIVE THRU</button></div><section id="cafe" class="page active"></section><section id="dt" class="page"></section></div><nav class="quick-nav" aria-label="Navegación rápida PBT">
   <button type="button" class="secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Inicio</button>
   <button type="button" onclick="showTab('cafe');window.scrollTo({top:0,behavior:'smooth'})">CAFE</button>
   <button type="button" onclick="showTab('dt');window.scrollTo({top:0,behavior:'smooth'})">DT</button>
@@ -254,33 +228,7 @@ function applyManual(tab){
   renderLayout(tab,res.play); renderRoutines(tab,res.play);
   showMsg(tab,`Lay Out actualizado fiel al PBT.24 | Play: ${res.play} | Mix base Excel: ${res.nearest.join('% / ')}%`,true);
 }
-function showTab(tab){
-
-  activeTab = tab;
-
-  document.querySelectorAll('.tab')
-    .forEach(x => x.classList.remove('active'));
-
-  document.querySelectorAll('.page')
-    .forEach(x => x.classList.remove('active'));
-
-  document.getElementById(tab)
-    .classList.add('active');
-
-  if(tab==='cafe'){
-      document.getElementById('tabCafe').classList.add('active');
-      renderDataTab('cafe');
-  }
-
-  if(tab==='dt'){
-      document.getElementById('tabDt').classList.add('active');
-      renderDataTab('dt');
-  }
-
-  if(tab==='equipo'){
-      document.getElementById('tabEquipo').classList.add('active');
-  }
-}
+function showTab(tab){activeTab=tab; document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); document.getElementById(tab).classList.add('active'); document.getElementById(tab==='cafe'?'tabCafe':'tabDt').classList.add('active'); if(typeof renderDataTab==='function') renderDataTab(tab);}
 </script><script>
 function todayDM(){const d=new Date(); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');}
 function cleanDM(value){let v=String(value||'').replace(/[^0-9]/g,'').slice(0,4); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); return v;}
@@ -414,86 +362,28 @@ function clearStore(tab){
   renderDataTab(tab);
 }
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.store-search')){
-      document.querySelectorAll('.store-results')
-      .forEach(x=>x.classList.remove('open'));
-  }
+  if(!e.target.closest('.store-search')) document.querySelectorAll('.store-results').forEach(x=>x.classList.remove('open'));
 });
-function buildEquipo(){
 
-  const el = document.getElementById('equipo');
-  if(!el) return;
-
-  el.innerHTML = `
-    <div class="card">
-      <div class="card-title">
-        EQUIPO
-      </div>
-
-      <div class="card-body">
-
-        <p>
-          Módulo en construcción.
-        </p>
-
-        <p>
-          Aquí se mostrará el listado de partners,
-          nombres cortos y asignaciones.
-        </p>
-
-      </div>
-    </div>
-  `;
-}
-
-function buildPage(tab){
-
-  const container = document.getElementById(tab);
-
-  if(!container) return;
-
-  container.innerHTML = `
-    <div class="card">
-
-      <div class="card-title">
-        ${tab==='cafe' ? 'CAFE' : 'DRIVE THRU'}
-      </div>
-
-      <div class="card-body">
-
-        <div id="${tab}_status" class="status-msg ok">
-          PBT Web 2.0 listo
-        </div>
-
-        <div id="${tab}_layout" class="layout">
-        </div>
-
-        <table style="width:100%;margin-top:10px">
-          <thead>
-            <tr>
-              <th>Partner</th>
-              <th>Estación</th>
-              <th>Fijo</th>
-              <th>Rutina</th>
-            </tr>
-          </thead>
-          <tbody id="${tab}_tbody"></tbody>
-        </table>
-
-      </div>
-
-    </div>
-  `;
-}
-
-buildPage('cafe');
-buildPage('dt');
-buildEquipo();
-
-populateFilters();
-syncPartnerTabletSelects();
-applyOperationalContext(true);
-setInterval(()=>applyOperationalContext(false),60000);
+function buildPage(tab){const c=config[tab]; document.getElementById(tab).innerHTML=`
+<div class="card"><div class="card-title">Filtros operativos</div><div class="card-body"><div class="filters operativo">${filterHTML(tab,'mes','Mes')}<div class="filter"><label>Partners</label><select class="partner-select" id="${tab}_partners" onchange="setPartners('${tab}')">${Array.from({length:c.maxPartners},(_,i)=>`<option value="${i+1}" ${i+1===state[tab].partners?'selected':''}>${i+1}</option>`).join('')}</select></div>${tab==='dt'?`<div class="filter"><label>Partner Tablet</label><select class="partner-select" id="${tab}_partnerTablet_filter" onchange="setPartnerTablet('${tab}', this.value)"><option value="No" ${state.dt.partnerTablet==='No'?'selected':''}>No</option><option value="Sí" ${state.dt.partnerTablet==='Sí'?'selected':''}>Sí</option></select></div>`:''}<div class="op-clock-card" id="${tab}_op_clock"><div class="op-label">Reloj operativo</div><div class="op-time">--/-- · --:--</div><div class="op-context">WeekPart · DayPart</div><div class="op-rule">Auto: Lun–Jue Weekday | Vie–Dom Weekend</div></div></div>${storeSearchHTML(tab,tab==='cafe'?'Tienda (solo sin % DT)':'Tienda (solo con % DT)')}<div class="status" id="${tab}_status">Base lista.</div><div class="excel-note">WeekPart y DayPart se calculan automáticamente por reloj operativo; se actualiza al abrir y cada hora.</div></div></div>
+<div class="manual-top"><div class="box"><div class="box-title">Información de turno</div><div class="box-body"><div class="metric"><label>Partners <span class="cell-tag">D14</span></label><span id="${tab}_partners_show">${state[tab].partners}</span></div></div></div>
+<div class="box"><div class="box-title">Distribución de canales</div><div class="box-body"><div class="metric-grid ${tab==='cafe'?'channels-cafe':'channels-dt'}" id="${tab}_channels"></div><div class="total ok" id="${tab}_channelTotal">Total: 100%</div></div></div>
+<div class="box"><div class="box-title">Mix de productos</div><div class="box-body"><div class="metric-grid mix-grid" id="${tab}_mix"></div><div class="total ok" id="${tab}_mixTotal">Total: 100%</div></div></div></div>
+<div class="section-title">Plan de distribución recomendado — ${c.title}</div><div class="layout-wrap"><div class="layout" id="${tab}_layout"></div></div><details open><summary>Rutinas de Partners</summary><div class="table-wrap"><table><thead><tr><th>Nombre corto</th><th>Estación</th><th>Fijo</th><th>Rutinas</th></tr></thead><tbody id="${tab}_tbody"></tbody></table></div></details>`;}
+function msDisplay(key,v){const val=String(v); if(key==='weekpart'){const meta=/weekend/i.test(val)?'Vie–Dom':(/weekday/i.test(val)?'Lun–Jue':''); return {main:val,meta};} if(key==='daypart'){const meta=/morning/i.test(val)?'6am–12pm':(/lunch/i.test(val)?'12pm–5pm':(/afternoon/i.test(val)?'5pm–6am':'')); return {main:val,meta};} return {main:val,meta:''};}
+function fillMS(tab,key,values){const box=document.getElementById(`${tab}_${key}_options`); if(!box) return; box.innerHTML=(values||[]).map(v=>{const d=msDisplay(key,v); const safe=String(v).replaceAll('"','&quot;'); const text=(String(v)+' '+(d.meta||'')).toLowerCase(); return `<label class="ms-option" data-text="${text}"><input type="checkbox" value="${safe}" onchange="changeMS('${tab}','${key}')"><span class="ms-option-text"><span class="ms-main">${d.main}</span>${d.meta?`<span class="ms-meta">${d.meta}</span>`:''}</span></label>`;}).join(''); updateMSLabel(tab,key);}
+function populateFilters(){['cafe','dt'].forEach(tab=>{fillMS(tab,'mes',getSourceList('Mes'));});}
+function toggleMS(tab,key){document.querySelectorAll('.ms').forEach(x=>{if(x.id!==`${tab}_${key}_ms`)x.classList.remove('open');});document.getElementById(`${tab}_${key}_ms`).classList.toggle('open');}
+function searchMS(tab,key,value){const q=String(value||'').toLowerCase();document.querySelectorAll(`#${tab}_${key}_options .ms-option`).forEach(o=>{o.style.display=o.dataset.text.includes(q)?'flex':'none';});}
+function changeMS(tab,key){state[tab].filters[key]=[...document.querySelectorAll(`#${tab}_${key}_options input:checked`)].map(x=>x.value);updateMSLabel(tab,key); if(key==='mes') autoRender(tab);}
+function selectAllMS(tab,key){document.querySelectorAll(`#${tab}_${key}_options input`).forEach(x=>x.checked=true);changeMS(tab,key);} function clearMS(tab,key){document.querySelectorAll(`#${tab}_${key}_options input`).forEach(x=>x.checked=false);changeMS(tab,key);} function updateMSLabel(tab,key){const arr=state[tab].filters[key]||[];document.getElementById(`${tab}_${key}_label`).textContent=arr.length===0?'Todos':arr.length===1?arr[0]:`${arr.length} seleccionados`;}
+function getEngineFilters(tab){const f=state[tab].filters;return {Q:f.q,DayPart:f.daypart,Mes:f.mes,Semana:f.semana,Weekpart:f.weekpart,Tienda:f.tienda};}
+function calculate(tab){if(typeof PBT_ENGINE==='undefined'||typeof PBT_ENGINE.calculate!=='function')return {registros:0,tiendasVisibles:0,mix:{},canales:{}}; return PBT_ENGINE.calculate(getEngineFilters(tab),config[tab].tipoEngine);}
+function pick(obj,names){for(const n of names){if(obj && obj[n]!=null) return obj[n];} return 0;}
+function valuesFromData(tab){const data=calculate(tab), mix=data.mix||{}, canales=data.canales||{}; return {raw:data, partners:state[tab].partners, channels:{lobby:round0(pick(canales,['Lobby','Cafe','CAFE'])),mop:round0(pick(canales,['Pick up & Delivery','PickUpDelivery','MOP & Delivery','MOP'])),dt:tab==='dt'?round0(pick(canales,['DT','Drive Thru'])):0}, mix:{esp:round0(pick(mix,['Espresso','ESPRESSO'])),brew:round0(pick(mix,['Café filtrado','Café Filtrado','CafeFiltrado','BREWED','Brewed'])),cbs:round0(pick(mix,['CBS'])),food:round0(pick(mix,['Food','FOOD'])),other:round0(pick(mix,['Otro','Other','OTHER']))}};}
+function renderDataTab(tab){const c=config[tab], v=valuesFromData(tab); document.getElementById(`${tab}_partners_show`).textContent=v.partners; document.getElementById(`${tab}_channels`).innerHTML=c.channelLabels.map(([lab,cell,key])=>`<div class="metric"><label>${lab}<span class="cell-tag">${cell}</span></label><span>${pctText(v.channels[key])}</span></div>`).join(''); document.getElementById(`${tab}_mix`).innerHTML=mixLabels.map(([lab,cell,key])=>`<div class="metric"><label>${lab}<span class="cell-tag">${cell}</span></label><span>${pctText(v.mix[key])}</span></div>`).join(''); const totals=setTotals(tab,v.channels,v.mix); const res=getPlay(tab,v.partners,v.channels,v.mix); if(res.play){renderLayout(tab,res.play); renderRoutines(tab,res.play);} document.getElementById(`${tab}_status`).textContent = `Registros filtrados: ${Number(v.raw.registros||0).toLocaleString('es-MX')} | Tiendas visibles: ${Number(v.raw.tiendasVisibles||0).toLocaleString('es-MX')} | Play PBT.24: ${res.play||'No encontrado'} | Canales ${totals.chTotal}% | Mix ${totals.mixTotal}%${tab==='dt'?' | Partner Tablet '+state.dt.partnerTablet:''}`;}
+function setPartners(tab){state[tab].partners=Number(document.getElementById(`${tab}_partners`).value);renderDataTab(tab);} function syncPartnerTabletSelects(){['dt_partnerTablet_filter'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=state.dt.partnerTablet||'No';});} function setPartnerTablet(tab,value){if(tab==='dt'){state.dt.partnerTablet=value || (document.getElementById(`${tab}_partnerTablet_filter`)?.value) || 'No'; syncPartnerTabletSelects(); renderDataTab(tab);}} function setPlanDate(tab,value){const v=cleanDM(value||todayDM()); if(!state[tab]) return; state[tab].planDateDM=v; const input=document.getElementById(`${tab}_planDate`); if(input && input.value!==v) input.value=v;} buildPage('cafe'); buildPage('dt'); populateFilters(); syncPartnerTabletSelects(); applyOperationalContext(true); setInterval(()=>applyOperationalContext(false), 60*1000);
 </script>
 <script>
 if ('serviceWorker' in navigator) {
