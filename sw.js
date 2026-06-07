@@ -1,11 +1,15 @@
-const CACHE_NAME = 'pbt-web-v3-ios-fix';
+const CACHE_NAME = 'pbt-web-v5-ios-layout';
 
 self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
-  clients.claim();
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(key => caches.delete(key)))
+    ).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', event => {
