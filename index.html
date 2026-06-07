@@ -390,7 +390,51 @@ function clearStore(tab){
 document.addEventListener('click',e=>{
   if(!e.target.closest('.store-search')) document.querySelectorAll('.store-results').forEach(x=>x.classList.remove('open'));
 });
+...
+});
 
+function buildEquipo(){
+
+return `
+<div class="card">
+
+<div class="card-title">
+👥 Equipo de Partners
+</div>
+
+<div class="card-body">
+
+<div class="box">
+
+<div class="box-title">
+CAFÉ
+</div>
+
+<input
+type="text"
+placeholder="🔍 Buscar partner"
+style="width:100%;padding:10px;margin-bottom:10px;">
+
+</div>
+
+<div class="box">
+
+<div class="box-title">
+DRIVE THRU
+</div>
+
+<input
+type="text"
+placeholder="🔍 Buscar partner"
+style="width:100%;padding:10px;margin-bottom:10px;">
+
+</div>
+
+</div>
+
+</div>
+`;
+}
 function buildPage(tab){const c=config[tab]; document.getElementById(tab).innerHTML=`
 <div class="card"><div class="card-title">Filtros operativos</div><div class="card-body"><div class="filters operativo">${filterHTML(tab,'mes','Mes')}<div class="filter"><label>Partners</label><select class="partner-select" id="${tab}_partners" onchange="setPartners('${tab}')">${Array.from({length:c.maxPartners},(_,i)=>`<option value="${i+1}" ${i+1===state[tab].partners?'selected':''}>${i+1}</option>`).join('')}</select></div>${tab==='dt'?`<div class="filter"><label>Partner Tablet</label><select class="partner-select" id="${tab}_partnerTablet_filter" onchange="setPartnerTablet('${tab}', this.value)"><option value="No" ${state.dt.partnerTablet==='No'?'selected':''}>No</option><option value="Sí" ${state.dt.partnerTablet==='Sí'?'selected':''}>Sí</option></select></div>`:''}<div class="op-clock-card" id="${tab}_op_clock"><div class="op-label">Reloj operativo</div><div class="op-time">--/-- · --:--</div><div class="op-context">WeekPart · DayPart</div><div class="op-rule">Auto: Lun–Jue Weekday | Vie–Dom Weekend</div></div></div>${storeSearchHTML(tab,tab==='cafe'?'Tienda (solo sin % DT)':'Tienda (solo con % DT)')}<div class="status" id="${tab}_status">Base lista.</div><div class="excel-note">WeekPart y DayPart se calculan automáticamente por reloj operativo; se actualiza al abrir y cada hora.</div></div></div>
 <div class="manual-top"><div class="box"><div class="box-title">Información de turno</div><div class="box-body"><div class="metric"><label>Partners <span class="cell-tag">D14</span></label><span id="${tab}_partners_show">${state[tab].partners}</span></div></div></div>
@@ -409,7 +453,15 @@ function calculate(tab){if(typeof PBT_ENGINE==='undefined'||typeof PBT_ENGINE.ca
 function pick(obj,names){for(const n of names){if(obj && obj[n]!=null) return obj[n];} return 0;}
 function valuesFromData(tab){const data=calculate(tab), mix=data.mix||{}, canales=data.canales||{}; return {raw:data, partners:state[tab].partners, channels:{lobby:round0(pick(canales,['Lobby','Cafe','CAFE'])),mop:round0(pick(canales,['Pick up & Delivery','PickUpDelivery','MOP & Delivery','MOP'])),dt:tab==='dt'?round0(pick(canales,['DT','Drive Thru'])):0}, mix:{esp:round0(pick(mix,['Espresso','ESPRESSO'])),brew:round0(pick(mix,['Café filtrado','Café Filtrado','CafeFiltrado','BREWED','Brewed'])),cbs:round0(pick(mix,['CBS'])),food:round0(pick(mix,['Food','FOOD'])),other:round0(pick(mix,['Otro','Other','OTHER']))}};}
 function renderDataTab(tab){const c=config[tab], v=valuesFromData(tab); document.getElementById(`${tab}_partners_show`).textContent=v.partners; document.getElementById(`${tab}_channels`).innerHTML=c.channelLabels.map(([lab,cell,key])=>`<div class="metric"><label>${lab}<span class="cell-tag">${cell}</span></label><span>${pctText(v.channels[key])}</span></div>`).join(''); document.getElementById(`${tab}_mix`).innerHTML=mixLabels.map(([lab,cell,key])=>`<div class="metric"><label>${lab}<span class="cell-tag">${cell}</span></label><span>${pctText(v.mix[key])}</span></div>`).join(''); const totals=setTotals(tab,v.channels,v.mix); const res=getPlay(tab,v.partners,v.channels,v.mix); if(res.play){renderLayout(tab,res.play); renderRoutines(tab,res.play);} document.getElementById(`${tab}_status`).textContent = `Registros filtrados: ${Number(v.raw.registros||0).toLocaleString('es-MX')} | Tiendas visibles: ${Number(v.raw.tiendasVisibles||0).toLocaleString('es-MX')} | Play PBT.24: ${res.play||'No encontrado'} | Canales ${totals.chTotal}% | Mix ${totals.mixTotal}%${tab==='dt'?' | Partner Tablet '+state.dt.partnerTablet:''}`;}
-function setPartners(tab){state[tab].partners=Number(document.getElementById(`${tab}_partners`).value);renderDataTab(tab);} function syncPartnerTabletSelects(){['dt_partnerTablet_filter'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=state.dt.partnerTablet||'No';});} function setPartnerTablet(tab,value){if(tab==='dt'){state.dt.partnerTablet=value || (document.getElementById(`${tab}_partnerTablet_filter`)?.value) || 'No'; syncPartnerTabletSelects(); renderDataTab(tab);}} function setPlanDate(tab,value){const v=cleanDM(value||todayDM()); if(!state[tab]) return; state[tab].planDateDM=v; const input=document.getElementById(`${tab}_planDate`); if(input && input.value!==v) input.value=v;} buildPage('cafe'); buildPage('dt'); populateFilters(); syncPartnerTabletSelects(); applyOperationalContext(true); setInterval(()=>applyOperationalContext(false), 60*1000);
+function setPartners(tab){state[tab].partners=Number(document.getElementById(`${tab}_partners`).value);renderDataTab(tab);} function syncPartnerTabletSelects(){['dt_partnerTablet_filter'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=state.dt.partnerTablet||'No';});} function setPartnerTablet(tab,value){if(tab==='dt'){state.dt.partnerTablet=value || (document.getElementById(`${tab}_partnerTablet_filter`)?.value) || 'No'; syncPartnerTabletSelects(); renderDataTab(tab);}} function setPlanDate(tab,value){const v=cleanDM(value||todayDM()); if(!state[tab]) return; state[tab].planDateDM=v; const input=document.getElementById(`${tab}_planDate`); if(input && input.value!==v) input.value=v;} buildPage('cafe');
+buildPage('dt');
+
+const equipoPage = document.getElementById('equipo');
+if(equipoPage){
+    equipoPage.innerHTML = buildEquipo();
+}
+
+populateFilters();syncPartnerTabletSelects(); applyOperationalContext(true); setInterval(()=>applyOperationalContext(false), 60*1000);
 </script>
 <script>
 if ('serviceWorker' in navigator) {
