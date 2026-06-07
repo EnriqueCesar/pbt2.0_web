@@ -87,11 +87,14 @@
 .partner-letter{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:999px;background:#eef7f2;color:#006241;font-weight:900}
 .partner-name-input{width:110px;max-width:110px;border:1px solid #bbb;border-radius:8px;padding:6px 7px;font-size:12px;font-weight:900;text-align:center;background:#fff;color:#1f1f1f;text-transform:uppercase}
 .partner-name-input:focus{outline:2px solid #00754a22;border-color:#00754a}
+.partner-name-select{width:118px;max-width:118px;border:1px solid #bbb;border-radius:8px;padding:6px 7px;font-size:12px;font-weight:900;text-align:center;background:#fff;color:#1f1f1f;text-transform:uppercase}
+.partner-name-select:focus{outline:2px solid #00754a22;border-color:#00754a}
 @media(max-width:760px){
   .filters.operativo,#dt .filters.operativo{grid-template-columns:1fr 1fr !important}
   .op-clock-card{grid-column:1 / -1}
   .partner-name-cell{min-width:130px}
   .partner-name-input{width:92px;max-width:92px;font-size:11px}
+  .partner-name-select{width:96px;max-width:96px;font-size:11px;padding:6px 4px}
 }
 
 /* --- Letra + nombre dentro del layout sin alterar coordenadas --- */
@@ -204,26 +207,47 @@ function letterToTeamIndex(letter){
   const code = clean.charCodeAt(0);
   return code>=65 && code<=90 ? code-64 : null;
 }
-function getPartnerName(tab, letter){
+function escHtml(v){
+  return String(v||'').replace(/[&<>"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+}
+function getAssignedPartner(tab, letter){
   const clean = String(letter||'').replace('.','').trim().toUpperCase();
-  const idx = letterToTeamIndex(clean);
   try{
-    /* Prioridad 1: lista base de EQUIPO. A=1, B=2, C=3... aplica para CAFE y DT. */
-    if(idx){
-      const teamName = localStorage.getItem(`pbt_team_${tab}_${idx}`);
-      if(teamName) return teamName;
-    }
-    /* Respaldo: nombres capturados antes directo en Rutinas. */
-    return localStorage.getItem(`pbt_${tab}_partner_${clean}`)||'';
-  }catch(e){return '';}
+    /* Asignación operativa por letra: A puede ser cualquier partner del catálogo. */
+    const assigned = localStorage.getItem(`pbt_assign_${tab}_${clean}`);
+    if(assigned) return assigned;
+    /* Respaldo de versiones anteriores donde se escribía directo en Rutinas. */
+    const legacy = localStorage.getItem(`pbt_${tab}_partner_${clean}`);
+    if(legacy) return legacy;
+    /* Sugerencia inicial: A=1, B=2, C=3... desde EQUIPO, solo si no hay asignación. */
+    const idx = letterToTeamIndex(clean);
+    if(idx){ return localStorage.getItem(`pbt_team_${tab}_${idx}`) || ''; }
+  }catch(e){}
+  return '';
+}
+function getPartnerName(tab, letter){
+  return getAssignedPartner(tab, letter);
 }
 function setPartnerName(tab, letter, el){
-  let v=String(el.value||'').replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ._-]/g,'').slice(0,8);
-  el.value=v.toUpperCase();
   const clean = String(letter||'').replace('.','').trim().toUpperCase();
-  try{localStorage.setItem(`pbt_${tab}_partner_${clean}`,el.value);}catch(e){}
-  /* Actualización inmediata del layout al editar desde Rutinas. */
+  const v = String(el.value||'').replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ._-]/g,'').slice(0,12).toUpperCase();
+  try{
+    if(v) localStorage.setItem(`pbt_assign_${tab}_${clean}`, v);
+    else localStorage.removeItem(`pbt_assign_${tab}_${clean}`);
+  }catch(e){}
   if(typeof renderDataTab==='function') renderDataTab(tab);
+}
+function partnerSelectHTML(tab, letter){
+  const clean = String(letter||'').replace('.','').trim().toUpperCase();
+  const selected = getAssignedPartner(tab, clean);
+  const names = getTeamList(tab).filter(Boolean);
+  const unique = [...new Set(names.map(x=>String(x).trim().toUpperCase()).filter(Boolean))];
+  const hasSelected = selected && unique.includes(selected);
+  const options = ['<option value="">Seleccionar</option>']
+    .concat(!hasSelected && selected ? [`<option value="${escHtml(selected)}" selected>${escHtml(selected)}</option>`] : [])
+    .concat(unique.map(name=>`<option value="${escHtml(name)}" ${name===selected?'selected':''}>${escHtml(name)}</option>`))
+    .join('');
+  return `<select class="partner-name-select" onchange="setPartnerName('${tab}','${clean}',this)" title="Selecciona desde EQUIPO">${options}</select>`;
 }
 function renderRoutines(tab, play){
   const rows = EXCEL_DATA.routines[play] || [];
@@ -231,10 +255,9 @@ function renderRoutines(tab, play){
   const tabletOn = tab==='dt' && state.dt && state.dt.partnerTablet==='Sí';
   tbody.innerHTML = rows.map(r=>{
     const letra=String(r[0]||'');
-    const nombre=getPartnerName(tab, letra);
     const estacion = tabletOn ? `${r[1]} + Carril` : r[1];
     const rutina = tabletOn ? `${r[3]} + Tablet` : r[3];
-    return `<tr><td><div class="partner-name-cell"><span class="partner-letter">${letra}</span><input class="partner-name-input" maxlength="8" value="${nombre}" placeholder="Nombre" oninput="setPartnerName('${tab}','${letra}',this)" title="Nombre corto máximo 8 caracteres"></div></td><td>${estacion}</td><td>${r[2]}</td><td>${rutina}</td></tr>`;
+    return `<tr><td><div class="partner-name-cell"><span class="partner-letter">${letra}</span>${partnerSelectHTML(tab, letra)}</div></td><td>${estacion}</td><td>${r[2]}</td><td>${rutina}</td></tr>`;
   }).join('');
 }
 function setTotals(tab, channels, mix){
@@ -407,7 +430,7 @@ document.addEventListener('click',e=>{
 
 
 function getTeamList(type){
-  const max = type === 'cafe' ? 20 : 29;
+  const max = type === 'cafe' ? 21 : 30;
   const arr = [];
   for(let i=1;i<=max;i++){
     try{ arr.push(localStorage.getItem(`pbt_team_${type}_${i}`) || ''); }
@@ -422,7 +445,7 @@ function setTeamPartner(type, idx, el){
     .toUpperCase();
   el.value = v;
   try{ localStorage.setItem(`pbt_team_${type}_${idx}`, v); }catch(e){}
-  /* Conexión inmediata EQUIPO → Layout y Rutinas. */
+  /* Actualiza inmediatamente dropdowns, layout y rutinas de la pestaña correspondiente. */
   if(typeof renderDataTab==='function') renderDataTab(type);
 }
 function filterTeam(type, value){
@@ -437,14 +460,14 @@ function teamBlock(type, title, count){
   const rows = Array.from({length:count},(_,i)=>{
     const idx=i+1;
     const val=names[i] || '';
-    return `<div class="team-row" data-team-row="${type}"><span class="team-num">${idx}</span><input class="team-input" maxlength="12" value="${val}" placeholder="Nombre corto" oninput="setTeamPartner('${type}',${idx},this)" title="Máximo 12 caracteres"></div>`;
+    return `<div class="team-row" data-team-row="${type}"><span class="team-num">${idx}</span><input class="team-input" maxlength="12" value="${escHtml(val)}" placeholder="Nombre corto" oninput="setTeamPartner('${type}',${idx},this)" title="Máximo 12 caracteres"></div>`;
   }).join('');
-  return `<div class="box"><div class="box-title">${title}</div><div class="box-body"><input class="team-search" type="text" placeholder="🔍 Buscar partner" oninput="filterTeam('${type}',this.value)"><div class="team-help">Captura nombres cortos. Se guardan automáticamente en este dispositivo.</div><div class="team-list">${rows}</div></div></div>`;
+  return `<div class="box"><div class="box-title">${title}</div><div class="box-body"><input class="team-search" type="text" placeholder="🔍 Buscar partner" oninput="filterTeam('${type}',this.value)"><div class="team-help">Captura tu plantilla. Luego selecciona cualquier nombre en Rutinas sin cambiar coordenadas.</div><div class="team-list">${rows}</div></div></div>`;
 }
 function buildEquipo(){
   const el = document.getElementById('equipo');
   if(!el) return;
-  el.innerHTML = `<div class="card"><div class="card-title">EQUIPO DE PARTNERS</div><div class="card-body"><div class="team-grid">${teamBlock('cafe','CAFÉ · Lista base',20)}${teamBlock('dt','DRIVE THRU · Lista base',29)}</div></div></div>`;
+  el.innerHTML = `<div class="card"><div class="card-title">EQUIPO DE PARTNERS</div><div class="card-body"><div class="team-grid">${teamBlock('cafe','CAFÉ · Catálogo 21 partners',21)}${teamBlock('dt','DRIVE THRU · Catálogo 30 partners',30)}</div></div></div>`;
 }
 function buildPage(tab){const c=config[tab]; document.getElementById(tab).innerHTML=`
 <div class="card"><div class="card-title">Filtros operativos</div><div class="card-body"><div class="filters operativo">${filterHTML(tab,'mes','Mes')}<div class="filter"><label>Partners</label><select class="partner-select" id="${tab}_partners" onchange="setPartners('${tab}')">${Array.from({length:c.maxPartners},(_,i)=>`<option value="${i+1}" ${i+1===state[tab].partners?'selected':''}>${i+1}</option>`).join('')}</select></div>${tab==='dt'?`<div class="filter"><label>Partner Tablet</label><select class="partner-select" id="${tab}_partnerTablet_filter" onchange="setPartnerTablet('${tab}', this.value)"><option value="No" ${state.dt.partnerTablet==='No'?'selected':''}>No</option><option value="Sí" ${state.dt.partnerTablet==='Sí'?'selected':''}>Sí</option></select></div>`:''}<div class="op-clock-card" id="${tab}_op_clock"><div class="op-label">Reloj operativo</div><div class="op-time">--/-- · --:--</div><div class="op-context">WeekPart · DayPart</div><div class="op-rule">Auto: Lun–Jue Weekday | Vie–Dom Weekend</div></div></div>${storeSearchHTML(tab,tab==='cafe'?'Tienda (solo sin % DT)':'Tienda (solo con % DT)')}<div class="status" id="${tab}_status">Base lista.</div><div class="excel-note">WeekPart y DayPart se calculan automáticamente por reloj operativo; se actualiza al abrir y cada hora.</div></div></div>
