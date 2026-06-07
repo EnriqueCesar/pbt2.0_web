@@ -199,13 +199,31 @@ function layoutMarkers(tab, play){
   return html;
 }
 function renderLayout(tab, play){ const el=document.getElementById(`${tab}_layout`); if(el) el.innerHTML=staticLayout(tab)+layoutMarkers(tab,play); }
+function letterToTeamIndex(letter){
+  const clean = String(letter||'').replace('.','').trim().toUpperCase();
+  const code = clean.charCodeAt(0);
+  return code>=65 && code<=90 ? code-64 : null;
+}
 function getPartnerName(tab, letter){
-  try{return localStorage.getItem(`pbt_${tab}_partner_${letter}`)||'';}catch(e){return '';}
+  const clean = String(letter||'').replace('.','').trim().toUpperCase();
+  const idx = letterToTeamIndex(clean);
+  try{
+    /* Prioridad 1: lista base de EQUIPO. A=1, B=2, C=3... aplica para CAFE y DT. */
+    if(idx){
+      const teamName = localStorage.getItem(`pbt_team_${tab}_${idx}`);
+      if(teamName) return teamName;
+    }
+    /* Respaldo: nombres capturados antes directo en Rutinas. */
+    return localStorage.getItem(`pbt_${tab}_partner_${clean}`)||'';
+  }catch(e){return '';}
 }
 function setPartnerName(tab, letter, el){
   let v=String(el.value||'').replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ._-]/g,'').slice(0,8);
   el.value=v.toUpperCase();
-  try{localStorage.setItem(`pbt_${tab}_partner_${letter}`,el.value);}catch(e){}
+  const clean = String(letter||'').replace('.','').trim().toUpperCase();
+  try{localStorage.setItem(`pbt_${tab}_partner_${clean}`,el.value);}catch(e){}
+  /* Actualización inmediata del layout al editar desde Rutinas. */
+  if(typeof renderDataTab==='function') renderDataTab(tab);
 }
 function renderRoutines(tab, play){
   const rows = EXCEL_DATA.routines[play] || [];
@@ -404,6 +422,8 @@ function setTeamPartner(type, idx, el){
     .toUpperCase();
   el.value = v;
   try{ localStorage.setItem(`pbt_team_${type}_${idx}`, v); }catch(e){}
+  /* Conexión inmediata EQUIPO → Layout y Rutinas. */
+  if(typeof renderDataTab==='function') renderDataTab(type);
 }
 function filterTeam(type, value){
   const q = String(value || '').toLowerCase().trim();
