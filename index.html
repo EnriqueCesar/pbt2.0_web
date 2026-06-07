@@ -388,9 +388,10 @@ function clearStore(tab){
   renderDataTab(tab);
 }
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.store-search')) document.querySelectorAll('.store-results').forEach(x=>x.classList.remove('open'));
-});
-...
+  if(!e.target.closest('.store-search')){
+      document.querySelectorAll('.store-results')
+      .forEach(x=>x.classList.remove('open'));
+  }
 });
 
 buildPage('cafe');
