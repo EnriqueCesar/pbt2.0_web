@@ -254,7 +254,33 @@ function applyManual(tab){
   renderLayout(tab,res.play); renderRoutines(tab,res.play);
   showMsg(tab,`Lay Out actualizado fiel al PBT.24 | Play: ${res.play} | Mix base Excel: ${res.nearest.join('% / ')}%`,true);
 }
-function showTab(tab){activeTab=tab; document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); document.getElementById(tab).classList.add('active'); document.getElementById(tab==='cafe'?'tabCafe':'tabDt').classList.add('active'); if(typeof renderDataTab==='function') renderDataTab(tab);}
+function showTab(tab){
+
+  activeTab = tab;
+
+  document.querySelectorAll('.tab')
+    .forEach(x => x.classList.remove('active'));
+
+  document.querySelectorAll('.page')
+    .forEach(x => x.classList.remove('active'));
+
+  document.getElementById(tab)
+    .classList.add('active');
+
+  if(tab==='cafe'){
+      document.getElementById('tabCafe').classList.add('active');
+      renderDataTab('cafe');
+  }
+
+  if(tab==='dt'){
+      document.getElementById('tabDt').classList.add('active');
+      renderDataTab('dt');
+  }
+
+  if(tab==='equipo'){
+      document.getElementById('tabEquipo').classList.add('active');
+  }
+}
 </script><script>
 function todayDM(){const d=new Date(); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');}
 function cleanDM(value){let v=String(value||'').replace(/[^0-9]/g,'').slice(0,4); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); return v;}
