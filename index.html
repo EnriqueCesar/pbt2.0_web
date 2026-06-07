@@ -419,6 +419,72 @@ document.addEventListener('click',e=>{
       .forEach(x=>x.classList.remove('open'));
   }
 });
+function buildEquipo(){
+
+  const el = document.getElementById('equipo');
+  if(!el) return;
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        EQUIPO
+      </div>
+
+      <div class="card-body">
+
+        <p>
+          Módulo en construcción.
+        </p>
+
+        <p>
+          Aquí se mostrará el listado de partners,
+          nombres cortos y asignaciones.
+        </p>
+
+      </div>
+    </div>
+  `;
+}
+
+function buildPage(tab){
+
+  const container = document.getElementById(tab);
+
+  if(!container) return;
+
+  container.innerHTML = `
+    <div class="card">
+
+      <div class="card-title">
+        ${tab==='cafe' ? 'CAFE' : 'DRIVE THRU'}
+      </div>
+
+      <div class="card-body">
+
+        <div id="${tab}_status" class="status-msg ok">
+          PBT Web 2.0 listo
+        </div>
+
+        <div id="${tab}_layout" class="layout">
+        </div>
+
+        <table style="width:100%;margin-top:10px">
+          <thead>
+            <tr>
+              <th>Partner</th>
+              <th>Estación</th>
+              <th>Fijo</th>
+              <th>Rutina</th>
+            </tr>
+          </thead>
+          <tbody id="${tab}_tbody"></tbody>
+        </table>
+
+      </div>
+
+    </div>
+  `;
+}
 
 buildPage('cafe');
 buildPage('dt');
