@@ -23,7 +23,7 @@
 <header class="header"><div class="logo">☕ PBT Web 2.0</div><div class="badge">Product Mix y canales | Sin decimales | Lógica PBT.24</div></header>
 <div class="container"><div class="tabs"><button class="tab active" id="tabCafe" onclick="showTab('cafe')">CAFE</button><button class="tab" id="tabDt" onclick="showTab('dt')">DRIVE THRU</button><button class="tab" id="tabEquipo" onclick="showTab('equipo')">EQUIPO</button></div><section id="cafe" class="page active"></section><section id="dt" class="page"></section><section id="equipo" class="page"></section></div>
 <nav class="quick-nav"><button type="button" class="secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Inicio</button><button type="button" onclick="showTab('cafe');window.scrollTo({top:0,behavior:'smooth'})">CAFE</button><button type="button" onclick="showTab('dt');window.scrollTo({top:0,behavior:'smooth'})">DT</button><button type="button" onclick="showTab('equipo');window.scrollTo({top:0,behavior:'smooth'})">EQUIPO</button></nav>
-<script src="./data.js?v=8"></script><script src="./excel_data.js?v=8"></script>
+<script src="js/data.js?v=7"></script><script src="js/excel_data.js?v=7"></script>
 <script>
 var MAPS={cafe:null,dt:null},activeTab='cafe';
 var state={cafe:{filters:{q:[],daypart:[],mes:[],semana:[],weekpart:[],tienda:[]},partners:4},dt:{filters:{q:[],daypart:[],mes:[],semana:[],weekpart:[],tienda:[]},partners:11,partnerTablet:'No'}};
@@ -85,7 +85,7 @@ function initPBT(){buildPage('cafe');buildPage('dt');buildEquipo();populateFilte
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPBT);else initPBT();
 </script>
 <script>
-if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js?v=8').then(function(reg){if(reg&&reg.update)reg.update();console.log('PBT Web 2.0 v8 listo',reg.scope)}).catch(function(err){console.log('No se pudo registrar sw.js',err)})})}
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js?v=7').then(function(reg){if(reg&&reg.update)reg.update();console.log('PBT Web 2.0 v7 listo',reg.scope)}).catch(function(err){console.log('No se pudo registrar sw.js',err)})})}
 </script>
 </body>
 </html>
