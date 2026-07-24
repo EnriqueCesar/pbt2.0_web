@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pbt2-web-v16-equipo-foto';
+const CACHE_NAME = 'pbt2-web-v17-coordinate-fidelity';
 const FILES = [
   './',
   './index.html',
