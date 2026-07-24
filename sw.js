@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pbt2-web-v14-fiel-coordenadas';
+const CACHE_NAME = 'pbt2-web-v15-auditado';
 const FILES = [
   './',
   './index.html',

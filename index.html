@@ -20,16 +20,19 @@
 /* V14 Fidelity: markers from PBT.24 keep exact coordinates; Fixed=green, No fijo=white */
 .partner-marker.partner{background:#00754a!important;color:#fff!important;border:1px solid #006241!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.10);}
 .partner-marker.support{background:#fff!important;color:#00754a!important;border:1px dashed #00754a!important;box-shadow:inset 0 0 0 1px rgba(0,117,74,.08);}
+.partner-marker.unknown-marker{background:#f2f4f3!important;color:#52605a!important;border:1px dotted #6d7873!important;}
 .partner-marker .marker-letter{font-weight:900;}
 .partner-marker .marker-name{font-weight:900;}
+.marker-legend{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin:-2px 0 10px;color:#37443e;font-size:12px;font-weight:800}.legend-item{display:inline-flex;align-items:center;gap:6px}.legend-dot{width:16px;height:16px;border-radius:4px;border:1px solid #006241}.legend-dot.fixed{background:#00754a}.legend-dot.flexible{background:#fff}.app-footer{display:flex;justify-content:center;padding:18px 12px 82px;color:#5d6963;font-size:11px}
 @media(max-width:760px){.header{font-size:18px;padding:12px}.logo{font-size:20px}.tabs{overflow-x:auto}.tab{min-width:150px;padding:12px}.filters.operativo,#dt .filters.operativo{grid-template-columns:1fr 1fr!important}.op-clock-card{grid-column:1/-1}.manual-top{grid-template-columns:1fr}.mix-grid{grid-template-columns:repeat(2,1fr)}.channels-cafe,.channels-dt{grid-template-columns:repeat(2,1fr)}.layout{height:300px}.area{font-size:8px}.partner,.support{font-size:14px}.partner-marker{padding:1px;gap:0}.marker-letter{font-size:11px}.marker-name{font-size:7px;max-width:44px}.partner-photo-bubble{width:56px;height:56px;top:-42px;border-width:2px;box-shadow:0 2px 6px rgba(0,0,0,.22),0 0 0 2px #e7f4ee}.partner-name-cell{min-width:130px}.partner-name-select{width:96px;max-width:96px;font-size:11px;padding:6px 4px}.team-grid{grid-template-columns:1fr}.team-list{grid-template-columns:1fr}.quick-nav{left:10px;right:10px;bottom:10px;justify-content:space-between;border-radius:18px}.quick-nav button{flex:1;padding:10px 8px;font-size:10px}.container{padding-bottom:72px}}
 </style>
 </head>
 <body>
 <header class="header"><div class="logo">☕ PBT Web 2.0</div><div class="badge">Product Mix y canales | Sin decimales | Lógica PBT.24</div></header>
-<div class="container"><div class="tabs"><button class="tab active" id="tabCafe" onclick="showTab('cafe')">CAFE</button><button class="tab" id="tabDt" onclick="showTab('dt')">DRIVE THRU</button><button class="tab" id="tabEquipo" onclick="showTab('equipo')">EQUIPO</button></div><section id="cafe" class="page active"></section><section id="dt" class="page"></section><section id="equipo" class="page"></section></div>
+<div class="container"><div class="tabs"><button class="tab active" id="tabCafe" onclick="showTab('cafe')">CAFE</button><button class="tab" id="tabDt" onclick="showTab('dt')">DRIVE THRU</button><button class="tab" id="tabEquipo" onclick="showTab('equipo')">EQUIPO</button></div><div class="marker-legend" aria-label="Leyenda de asignación"><span class="legend-item"><span class="legend-dot fixed" aria-hidden="true"></span>Fijo</span><span class="legend-item"><span class="legend-dot flexible" aria-hidden="true"></span>No fijo</span></div><section id="cafe" class="page active"></section><section id="dt" class="page"></section><section id="equipo" class="page"></section></div>
 <nav class="quick-nav"><button type="button" class="secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Inicio</button><button type="button" onclick="showTab('cafe');window.scrollTo({top:0,behavior:'smooth'})">CAFE</button><button type="button" onclick="showTab('dt');window.scrollTo({top:0,behavior:'smooth'})">DT</button><button type="button" onclick="showTab('equipo');window.scrollTo({top:0,behavior:'smooth'})">EQUIPO</button></nav>
-<script src="js/data.js?v=14"></script><script src="js/excel_data.js?v=14"></script>
+<footer class="app-footer">Diseñado: Jorge Alcantar Aguiar &amp; Enrique César Flores</footer>
+<script src="js/data.js?v=15"></script><script src="js/excel_data.js?v=15"></script>
 <script>
 var MAPS={cafe:null,dt:null},activeTab='cafe';
 var state={cafe:{filters:{q:[],daypart:[],mes:[],semana:[],weekpart:[],tienda:[]},partners:4},dt:{filters:{q:[],daypart:[],mes:[],semana:[],weekpart:[],tienda:[]},partners:11,partnerTablet:'No'}};
@@ -82,18 +85,20 @@ function layoutMarkers(tab,play){
       html+='<div class="area '+cls+' partner-marker" data-fixed="'+(fixed?'Si':'No')+'" style="left:'+p.left+'%;top:'+p.top+'%;width:'+p.width+'%;height:'+p.height+'%">'+photoBubbleHTML(tab,pname)+'<span class="marker-letter">'+escHtml(item.letter)+'</span><span class="marker-name">'+escHtml(pname)+'</span></div>';
     }
     return html;
-  }catch(e){console.log('Fallback layoutMarkers iOS',e);return fallbackMarkers(tab)}
+  }catch(e){console.log('Fallback layoutMarkers iOS',e);return fallbackMarkers(tab,play)}
 }
-function fallbackMarkers(tab){
-  var cs=fallbackCoords(tab), html='';
+function fallbackMarkers(tab,play){
+  var cs=fallbackCoords(tab), rows=(EXCEL_DATA.routines&&EXCEL_DATA.routines[play])||[], fixedByPartner={}, html='';
+  for(var r=0;r<rows.length;r++){var key=pbtCleanLetter(rows[r][0]);if(key)fixedByPartner[key]=pbtIsFixedValue(rows[r][2])}
   for(var i=0;i<cs.length;i++){
     var p=cellPos(cs[i][1],cs[i][2]), letter=String(cs[i][3]||''), clean=pbtCleanLetter(letter);
-    var cls=(letter.indexOf('.')>-1)?'support':'partner', pname=getPartnerName(tab,clean);
-    html+='<div class="area '+cls+' partner-marker" style="left:'+p.left+'%;top:'+p.top+'%;width:'+p.width+'%;height:'+p.height+'%">'+photoBubbleHTML(tab,pname)+'<span class="marker-letter">'+escHtml(letter)+'</span><span class="marker-name">'+escHtml(pname)+'</span></div>';
+    var known=Object.prototype.hasOwnProperty.call(fixedByPartner,clean), fixed=known&&fixedByPartner[clean];
+    var cls=known?(fixed?'partner':'support'):'unknown-marker', pname=getPartnerName(tab,clean), status=known?(fixed?'Si':'No'):'Sin dato';
+    html+='<div class="area '+cls+' partner-marker" data-fixed="'+status+'" style="left:'+p.left+'%;top:'+p.top+'%;width:'+p.width+'%;height:'+p.height+'%">'+photoBubbleHTML(tab,pname)+'<span class="marker-letter">'+escHtml(letter)+'</span><span class="marker-name">'+escHtml(pname)+'</span></div>';
   }
   return html;
 }
-function renderLayout(tab,play){var el=document.getElementById(tab+'_layout');if(!el)return;el.innerHTML=staticLayout(tab);try{el.innerHTML=staticLayout(tab)+(play?layoutMarkers(tab,play):fallbackMarkers(tab))}catch(e){console.log('renderLayout fallback',e);el.innerHTML=staticLayout(tab)+fallbackMarkers(tab)}}
+function renderLayout(tab,play){var el=document.getElementById(tab+'_layout');if(!el)return;el.innerHTML=staticLayout(tab);try{el.innerHTML=staticLayout(tab)+(play?layoutMarkers(tab,play):fallbackMarkers(tab,play))}catch(e){console.log('renderLayout fallback',e);el.innerHTML=staticLayout(tab)+fallbackMarkers(tab,play)}}
 function letterToTeamIndex(letter){var clean=String(letter||'').replace('.','').trim().toUpperCase(),code=clean.charCodeAt(0);return code>=65&&code<=90?code-64:null}function getAssignedPartner(tab,letter){var clean=String(letter||'').replace('.','').trim().toUpperCase();try{var assigned=localStorage.getItem('pbt_assign_'+tab+'_'+clean);if(assigned)return assigned;var legacy=localStorage.getItem('pbt_'+tab+'_partner_'+clean);if(legacy)return legacy;var idx=letterToTeamIndex(clean);if(idx)return localStorage.getItem('pbt_team_'+tab+'_'+idx)||''}catch(e){}return ''}function getPartnerName(tab,letter){return getAssignedPartner(tab,letter)}
 function photoKey(type,name){return 'pbt_photo_'+type+'_'+cleanPartnerName(name)}function getPartnerPhoto(type,name){name=cleanPartnerName(name);if(!name)return '';try{return localStorage.getItem(photoKey(type,name))||''}catch(e){return ''}}function photoBubbleHTML(type,name){var photo=getPartnerPhoto(type,name);return '<div class="partner-photo-bubble '+(photo?'':'empty')+'" '+(photo?'style="background-image:url('+photo+')"':'')+'></div>'}function savePartnerPhoto(type,idx,input){var file=input&&input.files&&input.files[0];if(!file)return;var name='';try{name=cleanPartnerName(localStorage.getItem('pbt_team_'+type+'_'+idx)||'')}catch(e){}if(!name){alert('Primero captura el nombre corto y después agrega la foto.');input.value='';return}var reader=new FileReader();reader.onload=function(ev){var img=new Image();img.onload=function(){var size=160,canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=size;canvas.height=size;var s=Math.min(img.width,img.height),sx=(img.width-s)/2,sy=(img.height-s)/2;ctx.drawImage(img,sx,sy,s,s,0,0,size,size);var data=canvas.toDataURL('image/jpeg',0.72);try{localStorage.setItem(photoKey(type,name),data)}catch(e){alert('La foto es muy pesada. Intenta con una imagen más ligera.')}buildEquipo();renderDataTab(type);try{input.value=''}catch(e){}};img.src=ev.target.result};reader.readAsDataURL(file)}function teamPhotoPreviewHTML(type,name){var photo=getPartnerPhoto(type,name);return '<span class="team-photo-preview '+(photo?'':'empty')+'" '+(photo?'style="background-image:url('+photo+')"':'')+'></span>'}
 function setPartnerName(tab,letter,el){
@@ -141,7 +146,7 @@ function initPBT(){if(typeof PBT_ENGINE==='undefined'||typeof EXCEL_DATA==='unde
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPBT);else initPBT();
 </script>
 <script>
-if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js?v=14').then(function(reg){if(reg&&reg.update)reg.update();console.log('PBT Web 2.0 v14 listo',reg.scope)}).catch(function(err){console.log('No se pudo registrar sw.js',err)})})}
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js?v=15').then(function(reg){if(reg&&reg.update)reg.update();console.log('PBT Web 2.0 v15 listo',reg.scope)}).catch(function(err){console.log('No se pudo registrar sw.js',err)})})}
 </script>
 </body>
 </html>

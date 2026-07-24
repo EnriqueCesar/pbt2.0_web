@@ -29,7 +29,7 @@ const PBT_ENGINE = (() => {
       const i = list.indexOf(String(v));
       if(i >= 0) s.add(i);
     });
-    return s.size ? s : null;
+    return s;
   }
   function pct(part,total){
     if(!total || total <= 0) return 0;
@@ -37,6 +37,7 @@ const PBT_ENGINE = (() => {
   }
   function fix100(obj, keys){
     const total = keys.reduce((s,k)=>s+(Number(obj[k])||0),0);
+    if(total === 0) return obj;
     if(total !== 100 && keys.length){
       obj[keys[0]] = (Number(obj[keys[0]])||0) + (100-total);
     }
