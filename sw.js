@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pbt2-web-v15-auditado';
+const CACHE_NAME = 'pbt2-web-v16-equipo-foto';
 const FILES = [
   './',
   './index.html',

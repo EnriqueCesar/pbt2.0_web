@@ -1,5 +1,11 @@
 # pbt2.0_web
 
+## V16 - Equipo y visual informativo
+- La condición **Fijo / No fijo** permanece activa para los marcadores, pero se oculta como leyenda y columna visible.
+- En **Equipo**, tocar la fotografía permite adjuntar o cambiar la imagen.
+- Se agregó una acción independiente **Cámara** para capturar la foto directamente en dispositivos compatibles.
+- Las fotografías continúan guardándose localmente y no modifican coordenadas, filtros ni rutinas.
+
 ## V15 - Auditoría integral PBT 2.0
 - Ajuste de markers: Fijo = verde, No fijo = blanco con borde verde.
 - Se eliminó override manual por letra para que respete la columna **Fijo** de rutinas.
