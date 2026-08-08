@@ -1,0 +1,124 @@
+{
+  "audit": "PBT Web 2.0 · fidelidad al motor original",
+  "generatedAt": "2026-08-08T22:38:20.242740+00:00",
+  "sources": {
+    "formulaMap": {
+      "file": "Base PBT_Formula(1).xlsx",
+      "sha256": "a66c3024a88b0d4cdbb31d1b74b55586def503037572589bef1b7730a0d8935a"
+    },
+    "salesBase": {
+      "file": "Base_Order_MixProducto_Enero_Febrero_Abril.xlsx",
+      "sha256": "c39fa0ca52195b1d3cbf56ec964b997be84bb22fe3607fd1a6419a66718be7d4"
+    },
+    "originalMotor": {
+      "file": "PBT.24Desbloqueado(3).xlsx",
+      "sha256": "2893306aaf51252894dce7eabf6985e0ce604c373200f452c3f67474f5f2d7ab"
+    }
+  },
+  "engineArtifacts": {
+    "data.js": "6de15bb0aa0e0a6398b6aaa5a88fb8cddb1c1b5ce043c7385b90aa8e4f11c84b",
+    "excel_data.js": "19a88dd281e180667ac7ff2561b7d8b371b746e777002942053e11eee28a6a77"
+  },
+  "checks": {
+    "motor": {
+      "coordinates": {
+        "source": 60950,
+        "generated": 60950,
+        "missing": 0,
+        "extra": 0,
+        "rowOffset": 17,
+        "columnOffset": 1,
+        "visualStartCell": "B18",
+        "visualColumnWidths": [
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          9.08203125,
+          10.83203125
+        ],
+        "transformMismatches": 0
+      },
+      "routines": {
+        "source": 32368,
+        "generated": 32368,
+        "missing": 0,
+        "extra": 0
+      },
+      "plays": {
+        "cafe_plays": {
+          "source": 77840,
+          "generated": 77840,
+          "missing": 0,
+          "extra": 0
+        },
+        "dt_plays": {
+          "source": 381416,
+          "generated": 381416,
+          "missing": 0,
+          "extra": 0
+        }
+      },
+      "mixCandidates": {
+        "cafe_mixes": {
+          "source": 5560,
+          "generated": 5560,
+          "missing": 0,
+          "extra": 0
+        },
+        "dt_mixes": {
+          "source": 27244,
+          "generated": 27244,
+          "missing": 0,
+          "extra": 0
+        }
+      },
+      "channelProduction": {
+        "source": 3021,
+        "generated": 3021,
+        "missing": 0,
+        "extra": 0
+      }
+    },
+    "salesCube": {
+      "sourceRows": 714212,
+      "sourceGroups": 67079,
+      "generatedGroupsForSourceMonths": 67079,
+      "missingGroups": 0,
+      "extraGroups": 0,
+      "mismatchedGroups": 0,
+      "maxAbsoluteDifference": 0.01,
+      "roundingTolerance": 0.01,
+      "categoryRule": "Leche se integra en Otro, igual que el cubo operativo original."
+    },
+    "formulaMap": {
+      "Cafe Layout": {
+        "mappedReferences": 267,
+        "uniqueReferences": 265,
+        "formulaReferences": 196,
+        "invalidReferences": 0,
+        "sourceDimensions": "46x17"
+      },
+      "Drive Thru Layout": {
+        "mappedReferences": 271,
+        "uniqueReferences": 269,
+        "formulaReferences": 198,
+        "invalidReferences": 0,
+        "sourceDimensions": "45x16"
+      }
+    }
+  },
+  "summary": {
+    "passed": true,
+    "mismatches": 0,
+    "statement": "El diseño puede cambiar; coordenadas, plays, rutinas y cálculos permanecen fieles a los Excel originales."
+  }
+}
